@@ -66,7 +66,7 @@ const projectSections = [
       {
         slug: "creative-2",
         title: "Generative Image Study",
-        image: "/logo.png",
+        image: "/gis-cover.png",
         year: "2026",
         chips: ["Generative", "Visual System", "Experiment"],
       },
@@ -149,11 +149,11 @@ export default function ProjectsPage() {
               className="scroll-mt-10 "
             >
               <div className="border-b border-black px-[24px] pb-[24px] md:pb-[48px] pt-[24px] md:pt-[48px] py-[2px] md:px-[36px] md:py-[2px] xl:px-[48px]">
-                  <p className="font-futura-light text-[12px] uppercase tracking-[0.18em] text-black/45 mb-[8px]">
+                  <p className="type-eyebrow mb-[8px]">
                      Selected Work
                   </p>
                 
-                <h2 className="font-inria-serif-rregular text-[clamp(2rem,3.2vw,3.5rem)] leading-[0.95] tracking-tighter">
+                <h2 className="type-section-title">
                   {section.title}
                 </h2>
               </div>

@@ -1,735 +1,945 @@
-import { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "./components/Header";
 
-const css = `
-  .oceanus-page {
-    background: var(--color-my-bg);
-    color: #1A1A1A;
-    font-size: clamp(16px, 1.1vw, 18px);
-    line-height: 1.75;
-    overflow-x: hidden;
-  }
-  .oceanus-page * { box-sizing: border-box; }
-  .oceanus-page img { display: block; width: 100%; height: auto; }
+// ── Nav sections ──────────────────────────────────────────────────────────────
 
-  .oceanus-page .reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-  .oceanus-page .reveal.visible {
-    opacity: 1;
-    transform: none;
-  }
+const navSections = [
+  { id: "s-overview",    label: "01 — Overview" },
+  { id: "s-research",    label: "02 — Research" },
+  { id: "s-scenario",    label: "03 — Scenario" },
+  { id: "s-issue",       label: "04 — Issue Analysis" },
+  { id: "s-system",      label: "05 — System Design" },
+  { id: "s-hardware",    label: "06 — AR Hardware" },
+  { id: "s-vision",      label: "07 — AR Vision" },
+  { id: "s-reflection",  label: "08 — Reflection" },
+];
 
-  /* ── Hero ── */
-  .oceanus-hero {
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: relative;
-    overflow: hidden;
-    background: black;
-  }
-  .oceanus-hero-img {
-    position: absolute;
-    inset: 0;
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-    opacity: 0.6;
-  }
-  .oceanus-hero-content {
-    position: relative;
-    z-index: 2;
-    padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 80px);
-    border-top: 1px solid rgba(255,255,255,0.15);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    align-items: end;
-  }
-  .oceanus-hero-title {
-    font-size: clamp(52px, 7vw, 96px);
-    font-weight: 300;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    color: #fff;
-    margin: 0;
-  }
-  .oceanus-hero-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    align-items: flex-end;
-    text-align: right;
-  }
-  .oceanus-hero-tagline {
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.55);
-  }
-  .oceanus-hero-desc {
-    font-size: clamp(15px, 1.1vw, 17px);
-    color: rgba(255,255,255,0.75);
-    line-height: 1.65;
-    max-width: 380px;
-    margin: 0;
-  }
-  .oceanus-hero-tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-  .oceanus-tag {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid rgba(255,255,255,0.25);
-    color: rgba(255,255,255,0.55);
-    padding: 4px 10px;
-  }
+// ── Data ──────────────────────────────────────────────────────────────────────
 
-  /* ── Layout ── */
-  .oceanus-container {
-   max-width: calc(100% - 96px); /* 48px * 2 */
-   margin: 0 auto;
-  padding: 0;
-  }
-  .oceanus-section {
-    padding: clamp(64px, 10vw, 120px) 0;
-  }
-  .oceanus-section + .oceanus-section {
-    border-top: 1px solid #d0cec8;
-  }
-  .oceanus-section-label {
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: black;
-    margin-bottom: 48px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .oceanus-section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #d0cec8;
-  }
+const heroTags = ["Speculative Design", "AR UX", "Futures Research", "Disaster Response", "University Project"];
 
-  /* ── Typography ── */
-  .oceanus-page h2 {
-    font-size: clamp(32px, 3.5vw, 52px);
-    font-weight: 300;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    margin: 0;
-  }
-  .oceanus-page h3 {
-    font-size: clamp(18px, 1.5vw, 22px);
-    font-weight: 500;
-    margin-bottom: 12px;
-  }
-  .oceanus-page h4 {
-    margin: 0;
-  }
-  .oceanus-page p { color: rgba(26,26,26,0.78); max-width: 640px; margin: 0; }
-  .oceanus-page p + p { margin-top: 1em; }
-  .oceanus-blockquote {
-    border-left: 2px solid var(--color-brand);
-    padding-left: 24px;
-    font-style: italic;
-    color: rgba(26,26,26,0.78);
-    font-size: clamp(16px, 1.2vw, 19px);
-    line-height: 1.7;
-    margin: 40px 0;
-    max-width: 680px;
-  }
+const introDetails: { label: string; value: string | React.ReactNode }[] = [
+  {
+    label: "Overview:",
+    value: "A speculative design project imagining how AR glasses could coordinate volunteer response during catastrophic London Thames flooding in 2070.",
+  },
+  {
+    label: "The core concept:",
+    value: "Rather than the fragmented, six-step volunteer pipeline exposed by the 2021 London floods, OCEANUS condenses mobilisation into a streamlined AR-enabled flow — volunteers active in under two minutes.",
+  },
+  { label: "Duration:",  value: "University Project" },
+  { label: "Tools:",     value: "Figma, Rhino, PS, PR" },
+  { label: "My Role:",   value: "UX Research, Speculative Design, AR Interface" },
+];
 
-  /* ── Video ── */
-  .oceanus-video-section {
-    padding: 0;
-    background: #1A1A1A;
-  }
-  .oceanus-video-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #1A1A1A;
-    overflow: hidden;
-    max-width: 1140px;
-    margin: 0 auto;
-  }
-   .oceanus-video-wrap iframe {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border: none;
-    display: block;
-  }
+const researchStats = [
+  { stat: "2070",  label: "Scenario year — Thames surge event" },
+  { stat: "28",    label: "Historical sea-level events mapped" },
+  { stat: "12/28", label: "Events directly associated with floods" },
+];
 
-  /* ── Two col ── */
-  .oceanus-two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(40px, 6vw, 80px);
-    align-items: start;
-  }
+const problems = [
+  { num: "Problem 01", title: "Failure to assess severity",    body: "Thames Water were unable to accurately estimate the severity of the storm, so did not trigger normal incident processes or proactively contact elected representatives." },
+  { num: "Problem 02", title: "Lack of on-ground staff",       body: '"This overwhelmed the number of people on duty in our Customer Contact Centre, leading to unacceptable waiting times." Teams were widely and thinly spread across the area.' },
+  { num: "Problem 03", title: "Communication breakdown",       body: "No further help beyond what Thames Water were already providing was requested. The London Resilience Group offered support — but it was never taken up." },
+];
 
-  /* ── Stats ── */
-  .oceanus-stat-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    margin: 48px 0;
-  }
-  .oceanus-stat-block {
-    background: #1A1A1A;
-    color: #fff;
-    padding: clamp(24px, 3vw, 40px);
-  }
-  .oceanus-stat-block:nth-child(even) { background: #2a2a26; }
-  .oceanus-stat-num {
-    font-size: clamp(40px, 4vw, 64px);
-    font-weight: 300;
-    line-height: 1;
-    margin-bottom: 8px;
-    color: var(--color-brand);
-  }
-  .oceanus-stat-label {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-  }
+const designPoints = [
+  { num: "DP 01", title: "Real-time task assignment",          body: "Fragmented communication was the core failure in 2021. OCEANUS uses a central AI dispatch system to push missions directly to volunteers' AR field of view — no phone calls, no waiting." },
+  { num: "DP 02", title: "Step-by-step contextual guidance",   body: "Untrained volunteers cannot perform medical or technical tasks reliably. The AR overlay provides illustrated, voice-guided instructions overlaid directly onto the real environment." },
+  { num: "DP 03", title: "Identity and role signalling",       body: "Citizens could not tell who was a volunteer or what role they held. The external display on the glasses broadcasts the volunteer's current mission to people around them." },
+  { num: "DP 04", title: "Minimal onboarding friction",        body: "Training was the biggest bottleneck in the current system. OCEANUS glasses are designed for three-step setup: get glasses → fixed to head → identification scan. Active in under two minutes." },
+];
 
-  /* ── Insight cards ── */
-  .oceanus-insights {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: #d0cec8;
-    border: 1px solid #d0cec8;
-    margin: 48px 0;
-  }
-  .oceanus-insight-card {
-    background: var(--color-my-bg);
-    padding: clamp(24px, 3vw, 40px);
-  }
-  .oceanus-insight-num {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    color: rgba(26,26,26,0.55);
-    margin-bottom: 20px;
-    text-transform: uppercase;
-  }
-  .oceanus-insight-card h4 {
-    font-size: clamp(16px, 1.3vw, 20px);
-    font-weight: 500;
-    margin-bottom: 12px;
-    line-height: 1.3;
-    color: #1A1A1A;
-  }
-  .oceanus-insight-card p { font-size: 14px; line-height: 1.65; max-width: none; }
+const arFlowRow1 = [
+  { src: "oceanus-arflow-setup.png",      caption: "01 — Scanning & Setup" },
+  { src: "oceanus-arflow-dispatch.png",   caption: "02 — Mission Dispatched" },
+  { src: "oceanus-arflow-navigation.png", caption: "03 — AR Navigation" },
+  { src: "oceanus-arflow-arrive.png",     caption: "04 — Arrive at Scene" },
+];
 
-  /* ── Design points ── */
-  .oceanus-design-points {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: #d0cec8;
-    border: 1px solid #d0cec8;
-    margin: 48px 0;
-  }
-  .oceanus-dp {
-    background: var(--color-my-bg);
-    padding: clamp(20px, 2.5vw, 36px);
-    display: flex;
-    gap: 20px;
-  }
-  .oceanus-dp-num {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: rgba(26,26,26,0.55);
-    flex-shrink: 0;
-    padding-top: 3px;
-    text-transform: uppercase;
-  }
-  .oceanus-dp-body h4 {
-    font-weight: 500;
-    font-size: clamp(15px, 1.1vw, 17px);
-    margin-bottom: 8px;
-    color: #1A1A1A;
-  }
-  .oceanus-dp-body p { font-size: 14px; max-width: none; }
+const arFlowRow2 = [
+  { src: "oceanus-arflow-guidance.png",    caption: "05 — Guidance Overlay" },
+  { src: "oceanus-arflow-immobilize.png",  caption: "06 — Immobilize Instruction" },
+  { src: "oceanus-arflow-complete.png",    caption: "07 — Mission Complete" },
+];
 
-  /* ── AR screens ── */
-  .oceanus-screens-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-    margin: 48px 0;
-  }
-  .oceanus-screen-item { position: relative; overflow: hidden; }
-  .oceanus-screen-item img { transition: transform 0.4s ease; }
-  .oceanus-screen-item:hover img { transform: scale(1.03); }
-  .oceanus-screen-caption {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    color: #fff;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 20px 12px 10px;
-  }
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
-  /* ── Misc ── */
-  .oceanus-scenario-label {
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(26,26,26,0.55);
-    padding: 8px 0;
-    border-bottom: 1px solid #d0cec8;
-    margin-bottom: 4px;
-  }
-  .oceanus-credits {
-    display: flex;
-    gap: 48px;
-    flex-wrap: wrap;
-    padding-top: 40px;
-  }
-  .oceanus-credit-group { display: flex; flex-direction: column; gap: 4px; }
-  .oceanus-credit-role {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(26,26,26,0.55);
-  }
-  .oceanus-credit-name { font-size: 15px; color: #1A1A1A; }
-  .oceanus-footer {
-    border-top: 1px solid #d0cec8;
-    padding: 40px clamp(24px, 5vw, 64px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: rgba(26,26,26,0.55);
-    text-transform: uppercase;
-  }
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="type-section-nav mb-[32px] md:mb-[48px]">
+      {children}
+    </p>
+  );
+}
 
-  /* ── Responsive ── */
-  @media (max-width: 768px) {
-    .oceanus-hero {
-      min-height: unset;
-      max-width: 100%;
-      padding: 0 8px;
-    }
+function DecisionBlock({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="border-l-2 border-black pl-5 py-1 my-6 bg-black/[0.02]">
+      <p className="type-eyebrow mb-2">Design decision</p>
+      <p className="type-body-key">{children}</p>
+    </div>
+  );
+}
 
-    .oceanus-hero-img {
-      position: static;
-      width: 100%;
-      height: auto;
-      object-fit: unset;
-      display: block;
-      opacity: 1;
-    }
-    .oceanus-hero-content {
-      grid-template-columns: 1fr;
-      gap: 24px;
-      background: #1A1A1A;
-      position: relative;
-    }
-    .oceanus-hero-meta { align-items: flex-start; text-align: left; }
-    .oceanus-hero-tags { justify-content: flex-start; }
-    .oceanus-two-col { grid-template-columns: 1fr; }
-    .oceanus-stat-row { grid-template-columns: 1fr 1fr; }
-    .oceanus-insights { grid-template-columns: 1fr; }
-    .oceanus-design-points { grid-template-columns: 1fr; }
-    .oceanus-screens-strip { grid-template-columns: 1fr 1fr; }
-    .oceanus-footer { flex-direction: column; gap: 8px; text-align: center; }
-  }
-`;
+function SubDivider() {
+  return <div className="border-t border-black/[0.07] mt-[40px] mb-[8px]" />;
+}
 
-const img = (name: string) => `./${name}`;
+function ImageBlock({ src, alt, caption, ratio = "16/9" }: { src: string; alt: string; caption?: string; ratio?: string }) {
+  return (
+    <div className="flex flex-col gap-[6px]">
+      <img
+        src={src}
+        alt={alt}
+        className="w-full block"
+        style={{ aspectRatio: ratio, objectFit: "cover" }}
+      />
+      {caption && <p className="font-futura-heavy text-[11px] opacity-30 text-black">{caption}</p>}
+    </div>
+  );
+}
+
+function InsightBlock({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="border border-black/20 p-5 md:p-6 my-4 flex flex-col md:flex-row gap-2 md:gap-5">
+      <span className="type-eyebrow whitespace-nowrap md:mt-[2px]">{label}</span>
+      <p className="font-futura-medium text-[14px] md:text-[15px] leading-relaxed text-black">{children}</p>
+    </div>
+  );
+}
+
+// ── Sidebar nav ───────────────────────────────────────────────────────────────
+
+function SidebarNav({
+  active,
+  visible,
+  onNavigate,
+}: {
+  active: string;
+  visible: boolean;
+  onNavigate: (id: string) => void;
+}) {
+  const activeIdx = navSections.findIndex((s) => s.id === active);
+
+  return (
+    <nav
+      className="hidden xl:flex flex-col items-start"
+      style={{
+        position:      "fixed",
+        left:          "36px",
+        top:           "50%",
+        transform:     "translateY(-50%)",
+        zIndex:        20,
+        opacity:       visible ? 1 : 0,
+        pointerEvents: visible ? "auto" : "none",
+        transition:    "opacity 0.4s ease",
+      }}
+    >
+      {navSections.map((section, i) => {
+        const isActive = i === activeIdx;
+        return (
+          <div key={section.id} className="flex flex-col items-start">
+            <button
+              onClick={() => onNavigate(section.id)}
+              className="flex items-center gap-[10px] py-[2px]"
+              style={{ outline: "none", background: "none", border: "none", cursor: "pointer" }}
+            >
+              <div
+                style={{
+                  width:           isActive ? "8px" : "5px",
+                  height:          isActive ? "8px" : "5px",
+                  borderRadius:    "50%",
+                  border:          isActive ? "1px solid #63C2BD" : "1px solid rgba(19,19,19,0.28)",
+                  backgroundColor: isActive ? "#63C2BD" : "transparent",
+                  flexShrink:      0,
+                  transition:      "width 0.35s cubic-bezier(.4,0,.2,1), height 0.35s cubic-bezier(.4,0,.2,1), background-color 0.3s ease, border-color 0.3s ease",
+                }}
+              />
+              <span
+                style={{
+                  fontSize:      "11px",
+                  letterSpacing: "0.02em",
+                  textTransform: "none",
+                  fontFamily:    "var(--font-futura-medium)",
+                  color:         isActive ? "#63C2BD" : "#131313",
+                  whiteSpace:    "nowrap",
+                  opacity:       isActive ? 1 : 0,
+                  transform:     isActive ? "translateX(0)" : "translateX(-4px)",
+                  transition:    "opacity 0.3s ease, transform 0.3s ease",
+                  pointerEvents: isActive ? "auto" : "none",
+                }}
+              >
+                {section.label}
+              </span>
+            </button>
+
+            {i < navSections.length - 1 && (
+              <div
+                style={{
+                  width:           "1px",
+                  height:          "20px",
+                  backgroundColor: "rgba(19,19,19,0.16)",
+                  marginLeft:      isActive ? "3.5px" : "2px",
+                  marginTop:       "2px",
+                  marginBottom:    "2px",
+                  transition:      "margin-left 0.35s cubic-bezier(.4,0,.2,1)",
+                }}
+              />
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function VrVolunteerSystem() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("visible");
-            observer.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.08 }
-    );
-    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  const [scrollY, setScrollY]         = useState(0);
+  const [activeSection, setActive]    = useState(navSections[0].id);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [titleH, setTitleH]           = useState(0);
+  const caseStudyRef                  = useRef<HTMLDivElement>(null);
+  const titleBlockRef                 = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const measure = () => {
+      if (titleBlockRef.current) setTitleH(titleBlockRef.current.offsetHeight);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const introRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = introRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setShowSidebar(!e.isIntersecting),
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    navSections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) setActive(id); },
+        { rootMargin: "-20% 0px -60% 0px" }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+  };
+
   return (
-    <>
-      <style>{css}</style>
+    <div className="min-h-screen w-full bg-my-bg text-black font-serif">
 
-      <Header />
+      {/* Fixed header */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Header right="projects" />
+      </div>
 
-      <div className="oceanus-page">
-        {/* ── Hero ── */}
-        <section className="oceanus-hero">
-          <img
-            className="oceanus-hero-img"
-            src={img("volunteerhero.png")}
-            alt="OCEANUS — AR System for Future Volunteers"
-          />
-          <div className="oceanus-hero-content">
-            <h1 className="oceanus-hero-title">OCEANUS</h1>
-            <div className="oceanus-hero-meta">
-              <p className="oceanus-hero-desc">
-                A speculative design project imagining how AR glasses could coordinate volunteer response during catastrophic London Thames flooding in 2070.
-              </p>
-              <div className="oceanus-hero-tags" >
-                <span className="oceanus-tag">AR</span>
-                <span className="oceanus-tag">UX</span>
-                <span className="oceanus-tag">Futures Research</span>
-              </div>
-            </div>
+      {/* ══════════════════════════════════════════════
+          SCREEN 1 — HERO
+      ══════════════════════════════════════════════ */}
+      <section
+        style={{
+          position:           "relative",
+          height:             "100svh",
+          backgroundImage:    "url(/volunteerhero.png)",
+          backgroundSize:     "cover",
+          backgroundPosition: typeof window !== "undefined" && window.innerWidth < 768
+            ? `center ${scrollY * 0.1}px`
+            : `center ${scrollY * 0.22}px`,
+          backgroundRepeat:   "no-repeat",
+        }}
+      >
+        {/* Sticky title block */}
+        <div ref={titleBlockRef} className="sticky top-[48px] md:top-[64px] px-[24px] md:px-[48px] xl:px-[80px] pt-[20px] md:pt-[28px] pb-[16px] md:pb-[22px]">
+          <h1
+            className="font-inria-serif leading-[0.95] tracking-tighter text-black bg-my-bg"
+            style={{
+              fontSize:     "clamp(1.5rem, 3.8vw, 4.2rem)",
+              paddingLeft:  "4px",
+              paddingRight: "4px",
+              display:      "inline",
+              marginBottom: "0",
+            }}
+          >
+            AR Coordination System for Future Disaster Response
+          </h1>
+
+          <div className="flex flex-wrap gap-2 mt-[20px] md:mt-[32px]">
+            {heroTags.map((t) => (
+              <span
+                key={t}
+                className="inline-flex rounded-full border border-black px-3 py-1 type-chip text-black bg-my-bg"
+              >
+                {t}
+              </span>
+            ))}
           </div>
-        </section>
+        </div>
 
-        {/* ── Overview ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">Overview</div>
-            <div className="oceanus-two-col">
-              <div className="reveal">
-                <h2>What if the Thames floods London in 2070?</h2>
-                <blockquote className="oceanus-blockquote">
-                  "In 2070, when sea level rise is out of our control, we will be helpless in the face of catastrophic floods. So what can be done to prevent disaster?"
-                </blockquote>
-                <p>
-                  OCEANUS is a future-facing AR coordination system designed for civilian volunteers responding to a major London flood event between 2070–2080. Built on speculative design methodology, the project starts from real climate data and models a plausible future in which volunteer organisations become the backbone of urban resilience.
-                </p>
-              </div>
-              <div className="reveal" style={{ transitionDelay: "0.15s" }}>
-                <div className="oceanus-scenario-label">Project Details</div>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, color: "rgba(26,26,26,0.78)" }}>
-                  <tbody>
-                    {[
-                      ["Role", "UX Research, Speculative Design, AR Interface"],             
-                      ["Tools", "Figma, Rhino, PS, PR"],
-                      ["Context", "Speculative design studio — futures cone methodology"],
-                    ].map(([label, value], i, arr) => (
-                      <tr key={label} style={{ borderBottom: i < arr.length - 1 ? "1px solid #d0cec8" : "none" }}>
-                        <td
-                          style={{
-                            padding: "10px 24px 10px 0",
-                            fontSize: 10,
-                            letterSpacing: "0.1em",
-                            textTransform: "uppercase",
-                            color: "rgba(26,26,26,0.55)",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {label}
-                        </td>
-                        <td style={{ padding: "10px 0" }}>{value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        {/* Down arrow */}
+        <button
+          onClick={() => {
+            const headerH = window.innerWidth >= 768 ? 64 : 48;
+            window.scrollTo({ top: window.innerHeight - titleH - headerH, behavior: "smooth" });
+          }}
+          aria-label="Scroll down"
+          className="absolute left-1/2 -translate-x-1/2 bottom-[28px] flex items-center justify-center rounded-full bg-my-bg border border-black/25 group hover:border-brand transition-colors duration-200"
+          style={{
+            width: "44px", height: "44px", cursor: "pointer",
+            opacity:       scrollY > 0 ? 0 : 1,
+            pointerEvents: scrollY > 0 ? "none" : "auto",
+            transition:    "opacity 0.3s ease",
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-black/60 group-hover:text-brand transition-colors duration-200"
+          >
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </button>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          SCREEN 2 — PROJECT INTRO
+      ══════════════════════════════════════════════ */}
+      <section
+        ref={introRef}
+        className="flex flex-col pb-[56px] md:pb-[80px]"
+      >
+        <div className="flex flex-col md:grid md:grid-cols-2 px-[24px] md:px-[96px]">
+
+          {/* Left — image */}
+          <div className="flex flex-col justify-center self-stretch">
+            <img
+              src="/oceanus-glasses-render-2.png"
+              alt="OCEANUS AR glasses render"
+              className="w-full"
+              style={{ display: "block" }}
+            />
           </div>
-        </section>
 
-        {/* ── Video ── */}
-        <section className="oceanus-video-section">
-  <div className="oceanus-video-wrap reveal">
-    <iframe
-      src="https://www.youtube.com/embed/wKhigvu9ygY"
-      title="OCEANUS volunteer experience"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-    />
-  </div>
-  <div className="oceanus-video-caption">
-    Full scenario walkthrough — AR vision prototype demonstrating the OCEANUS volunteer experience during a flood response
-  </div>
-</section>
+          {/* Right — project details */}
+          <div className="flex flex-col justify-center py-[28px] md:pt-[112px] md:pb-[72px] md:pl-[48px]">
+            {introDetails.map((item) => (
+              <div
+                key={item.label}
+                className="grid grid-cols-[100px_1fr] md:grid-cols-[130px_1fr] gap-x-[10px] md:gap-x-[14px] py-[12px] md:py-[20px] border-b border-black/12 last:border-b-0 items-start"
+              >
+                <p className="type-eyebrow md:text-[14px] leading-relaxed pt-[2px]">
+                  {item.label}
+                </p>
+                <p className="font-futura-medium text-[13px] md:text-[15px] leading-relaxed text-black">
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* ── Research ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">01 — Sea Level Rising Research</div>
-            <div className="oceanus-two-col reveal">
+      {/* ══════════════════════════════════════════════
+          CASE STUDY SECTIONS
+      ══════════════════════════════════════════════ */}
+      <div ref={caseStudyRef} className="relative">
+
+        <SidebarNav
+          active={activeSection}
+          visible={showSidebar}
+          onNavigate={scrollToSection}
+        />
+
+        <div className="w-full px-[24px] md:px-[192px] pb-[80px]">
+
+          {/* 01 — Overview */}
+          <section id="s-overview" className="pb-[40px] md:pb-[56px] border-b border-black/15">
+            <div className="border-t border-black/15 mb-[8px]" />
+            <SectionLabel>01 — Overview</SectionLabel>
+
+            {/* Video — full width */}
+            <div className="w-full aspect-video bg-[#1A1A1A] overflow-hidden mb-[48px]">
+              <iframe
+                className="w-full h-full border-0 block"
+                src="https://www.youtube.com/embed/wKhigvu9ygY"
+                title="OCEANUS volunteer experience"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+
+            <SubDivider />
+
+            {/* Context — 4-col grid */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
               <div>
-                <h2>Understanding the scale of the crisis</h2>
-                <p>
-                  We began with a comprehensive analysis of sea level rise: its causes, historical trajectory, and projected futures. Using NASA and IPCC datasets, we mapped 28 key historical events on a global timeline — 12 of which were directly flood-related.
+                <p className="type-eyebrow mb-[16px]">The question</p>
+                <p className="type-body">What if the Thames floods London in 2070?</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  OCEANUS is a future-facing AR coordination system designed for civilian volunteers
+                  responding to a major London flood event between 2070–2080.
                 </p>
-                <p style={{ marginTop: "1em" }}>
-                  River avulsions — catastrophic floods triggered when a river charts a new path to the sea — are projected to increase significantly along the Thames as sea levels accelerate. The rate of extreme water-level events is already accelerating.
+                <p className="type-body">
+                  Built on speculative design methodology, the project starts from real climate data and
+                  models a plausible future in which volunteer organisations become the backbone of urban
+                  resilience.
                 </p>
-                <blockquote className="oceanus-blockquote">
-                  "Continuous monitoring of this change is vital to safeguard London and the Thames Estuary's continued existence as one of the world's most important coastal regions."
+                <blockquote className="border-l-2 border-brand pl-[16px] py-[2px] font-inria-serif text-[clamp(15px,1.2vw,18px)] italic text-black/70 leading-relaxed">
+                  "In 2070, when sea level rise is out of our control, we will be helpless in the face of
+                  catastrophic floods. So what can be done to prevent disaster?"
                 </blockquote>
               </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Volunteer system comparison */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
               <div>
-                <img src={img("oceanus-research-analysis-1.png")} alt="Sea level rising analysis"  />
-                <img src={img("oceanus-research-analysis-2.png")} alt="Sea level rising analysis" style={{ marginBottom: 2 }} />
-               
+                <p className="type-eyebrow mb-[16px]">The system gap</p>
+                <p className="type-body">
+                  OCEANUS reimagines the volunteer pipeline from a fragmented six-step process into a
+                  streamlined AR-enabled flow.
+                </p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <img src="/oceanus-system-comparison.png" alt="Current vs future volunteer system" className="w-full block" />
+                <p className="font-futura-heavy text-[11px] opacity-30 text-black">
+                  Current six-step pipeline vs. OCEANUS three-step AR-enabled flow
+                </p>
               </div>
             </div>
-            <div className="oceanus-stat-row reveal">
-              {[
-                { num: "2070", label: "Scenario year — Thames surge event" },
-                { num: "28", label: "Historical sea-level events mapped" },
-                { num: "12/28", label: "Events directly associated with floods" },
-              ].map(({ num, label }) => (
-                <div className="oceanus-stat-block" key={num}>
-                  <div className="oceanus-stat-num">{num}</div>
-                  <div className="oceanus-stat-label">{label}</div>
+          </section>
+
+          {/* 02 — Research */}
+          <section id="s-research" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>02 — Sea Level Rising Research</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Understanding the scale</p>
+                <p className="type-body">Grounding speculative design in real climate data.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  We began with a comprehensive analysis of sea level rise: its causes, historical
+                  trajectory, and projected futures. Using NASA and IPCC datasets, we mapped 28 key
+                  historical events on a global timeline — 12 of which were directly flood-related.
+                </p>
+                <p className="type-body">
+                  River avulsions — catastrophic floods triggered when a river charts a new path to the
+                  sea — are projected to increase significantly along the Thames as sea levels accelerate.
+                  The rate of extreme water-level events is already accelerating.
+                </p>
+                <blockquote className="border-l-2 border-brand pl-[16px] py-[2px] font-inria-serif text-[clamp(15px,1.2vw,18px)] italic text-black/70 leading-relaxed">
+                  "Continuous monitoring of this change is vital to safeguard London and the Thames
+                  Estuary's continued existence as one of the world's most important coastal regions."
+                </blockquote>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Stats — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Key data points</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="grid grid-cols-3 gap-0 border border-black/20">
+                  {researchStats.map((s) => (
+                    <div key={s.stat} className="border-r border-black/10 last:border-r-0 p-[20px] text-center">
+                      <p className="font-inria-serif text-[clamp(1.8rem,3vw,2.8rem)] leading-none tracking-tight text-brand mb-[8px]">{s.stat}</p>
+                      <p className="type-eyebrow">{s.label}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="reveal" style={{ marginTop: 16 }}>
-              <img src={img("oceanus-research-thames.png")} alt="London Thames flood history and data" />
-            </div>
-          </div>
-        </section>
 
-        {/* ── Scenario ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">02 — Scenario & Futures Cone</div>
-            <div className="oceanus-two-col reveal">
+            <SubDivider />
+
+            {/* Research images */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
               <div>
-                <h2>Mapping probable and preferable futures</h2>
-                <p>
-                  Using the futures cone methodology, we mapped economic, political, technological, social, and ecological dimensions across probable, possible, and preferable futures for London 2070–2080.
+                <p className="type-eyebrow mb-[16px]">Analysis materials</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <img src="/oceanus-research-analysis-1.png" alt="Sea level rising analysis" className="w-full block" />
+                <img src="/oceanus-research-analysis-2.png" alt="Sea level rising analysis" className="w-full block" />
+                <img src="/oceanus-research-thames.png" alt="London Thames flood history and data" className="w-full block" />
+                <p className="font-futura-heavy text-[11px] opacity-30 text-black">London Thames flood history and data visualisation</p>
+              </div>
+            </div>
+          </section>
+
+          {/* 03 — Scenario */}
+          <section id="s-scenario" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>03 — Scenario &amp; Futures Cone</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Mapping probable and preferable futures</p>
+                <p className="type-body">Futures cone methodology applied to London 2070–2080.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  Using the futures cone methodology, we mapped economic, political, technological,
+                  social, and ecological dimensions across probable, possible, and preferable futures for
+                  London 2070–2080.
                 </p>
-                <p>
-                  Our scenario: during a River Thames surge, London's public organisations — supported by AR-equipped volunteers — coordinate to save coastal areas from disaster.
+                <p className="type-body">
+                  Our scenario: during a River Thames surge, London's public organisations — supported by
+                  AR-equipped volunteers — coordinate to save coastal areas from disaster.
                 </p>
               </div>
-              <div style={{ fontSize: 14, color: "rgba(26,26,26,0.78)" }}>
-                <p>
-                  <strong style={{ color: "#1A1A1A" }}>Probable future issues identified:</strong>
-                </p>
-                <ul style={{ marginTop: 12, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+            </div>
+
+            <SubDivider />
+
+            {/* Probable issues — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Probable future issues identified</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
                   {[
                     "Low surface permeability along the river",
                     "Huge social human input, waste of resources",
                     "Rapid AI replacing positions in city management",
                     "Multiple organisations unable to communicate in emergencies",
                     "Rising reliance on smart city tech creates single-point failures",
-                  ].map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-            </div>
-            <div className="reveal" style={{ marginTop: 48 }}>
-              <img src={img("oceanus-scenario-matrix.png")} alt="Futures cone scenario matrix" />
-            </div>
-          </div>
-        </section>
-
-        {/* ── Issue Analysis ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">03 — Issue Analysis</div>
-            <div className="reveal">
-              <h2>The 2021 London floods revealed the cracks</h2>
-              <p style={{ maxWidth: 700, marginTop: 16 }}>
-                The 2021 floods exposed complex, fragmented management of flood risk and a critical lack of coordinated response across multiple organisations. Thames Water, the Met Office, NHS, Fire Brigade, and the London Resilience Group all operated in silos — leading to confusion and ineffective flood mitigation.
-              </p>
-            </div>
-            <div className="oceanus-insights reveal" style={{ marginTop: 48 }}>
-              {[
-                { num: "Problem 01", title: "Failure to assess severity", body: "Thames Water were unable to accurately estimate the severity of the storm, so did not trigger normal incident processes or proactively contact elected representatives." },
-                { num: "Problem 02", title: "Lack of on-ground staff", body: '"This overwhelmed the number of people on duty in our Customer Contact Centre, leading to unacceptable waiting times." Teams were widely and thinly spread across the area.' },
-                { num: "Problem 03", title: "Communication breakdown", body: "No further help beyond what Thames Water were already providing was requested. The London Resilience Group offered support — but it was never taken up." },
-              ].map(({ num, title, body }) => (
-                <div className="oceanus-insight-card" key={num}>
-                  <div className="oceanus-insight-num">{num}</div>
-                  <h4>{title}</h4>
-                  <p>{body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="reveal">
-              <img src={img("oceanus-issue-stakeholders.png")} alt="Stakeholder analysis diagram" />
-            </div>
-          </div>
-        </section>
-
-        {/* ── System Design ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">04 — OCEANUS System Design</div>
-            <div className="oceanus-two-col reveal">
-              <div>
-                <h2>From fragmented response to coordinated action</h2>
-                <p>
-                  OCEANUS reimagines the volunteer pipeline. Rather than the current six-step process — assessment, mobilisation, training, dispatch, evaluation, rehabilitation — the system condenses this into a streamlined AR-enabled flow.
-                </p>
-                <p>
-                  Volunteers receive AR glasses, are taught basic operation in minutes, and are immediately assigned to specialist roles: Traffic Services, Community Services, Animal Services, or Medical Services.
-                </p>
-              </div>
-              <div>
-                <img src={img("oceanus-system-comparison.png")} alt="Current vs future volunteer system" />
-              </div>
-            </div>
-            <div className="reveal" style={{ marginTop: 64 }}>
-              <div className="oceanus-section-label" style={{ marginBottom: 32 }}>
-                Design Rationale — From Insights to Design Points
-              </div>
-              <div className="oceanus-design-points">
-                {[
-                  { num: "DP 01", title: "Real-time task assignment", body: "Fragmented communication was the core failure in 2021. OCEANUS uses a central AI dispatch system to push missions directly to volunteers' AR field of view — no phone calls, no waiting." },
-                  { num: "DP 02", title: "Step-by-step contextual guidance", body: "Untrained volunteers cannot perform medical or technical tasks reliably. The AR overlay provides illustrated, voice-guided instructions overlaid directly onto the real environment." },
-                  { num: "DP 03", title: "Identity and role signalling", body: "Citizens could not tell who was a volunteer or what role they held. The external display on the glasses broadcasts the volunteer's current mission to people around them." },
-                  { num: "DP 04", title: "Minimal onboarding friction", body: "Training was the biggest bottleneck in the current system. OCEANUS glasses are designed for three-step setup: get glasses → fixed to head → identification scan. Active in under two minutes." },
-                ].map(({ num, title, body }) => (
-                  <div className="oceanus-dp" key={num}>
-                    <span className="oceanus-dp-num">{num}</span>
-                    <div className="oceanus-dp-body">
-                      <h4>{title}</h4>
-                      <p>{body}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── AR Glasses ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">05 — AR Glasses Hardware</div>
-            <div className="oceanus-two-col reveal" style={{ alignItems: "center" }}>
-              <div>
-                <h2>Designed for the chaos of disaster response</h2>
-                <p>
-                  The OCEANUS AR glasses feature two distinct display systems working in parallel. The internal display provides the volunteer with visual guidance, directional audio, and a fixator for extended wear. The external display signals role and status to people around them.
-                </p>
-                <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 16 }}>
-                  {[
-                    { role: "INTERNAL", desc: "Visual aid · Fixator · Auditory aid — provides information and guidance on volunteer tasks" },
-                    { role: "EXTERNAL", desc: "External visual aid · Sensor · Audio reception — shows people who you are and provides guidance when necessary" },
-                  ].map(({ role, desc }) => (
-                    <div key={role} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                      <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(26,26,26,0.55)", flexShrink: 0, paddingTop: 2, textTransform: "uppercase" }}>
-                        {role}
-                      </span>
-                      <p style={{ fontSize: 14, maxWidth: "none" }}>{desc}</p>
+                  ].map((item, i) => (
+                    <div key={i} className="border-b border-black/10 last:border-b-0 p-[16px] flex items-start gap-[12px]">
+                      <span className="type-eyebrow shrink-0 mt-[2px]">{String(i + 1).padStart(2, "0")}</span>
+                      <p className="type-body">{item}</p>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Scenario matrix image */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
               <div>
-                <img src={img("oceanus-glasses-render-2.png")} alt="AR glasses hardware render-2" />
-                
+                <p className="type-eyebrow mb-[16px]">Futures cone matrix</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <img src="/oceanus-scenario-matrix.png" alt="Futures cone scenario matrix" className="w-full block" />
+                <p className="font-futura-heavy text-[11px] opacity-30 text-black mt-[6px]">Futures cone scenario matrix — London 2070–2080</p>
               </div>
             </div>
-            <div className="reveal" style={{ marginTop: 48 }}>
-              <img src={img("oceanus-glasses-diagram.png")} alt="AR glasses internal and external display system" />
-            </div>
-          </div>
-        </section>
+          </section>
 
-        {/* ── AR Vision ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">06 — AR Vision — Medical Treatment User Flow</div>
-            <div className="reveal">
-              <h2>What the volunteer sees</h2>
-              <p style={{ marginTop: 16, maxWidth: 640 }}>
-                The full AR user flow demonstrates a Medical Treatment mission. A volunteer is dispatched to assist a girl with a suspected fracture near a subway station. OCEANUS navigates them to the scene, identifies the situation, and provides step-by-step first aid guidance — all within the AR field of view.
-              </p>
+          {/* 04 — Issue Analysis */}
+          <section id="s-issue" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>04 — Issue Analysis</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">The 2021 London floods revealed the cracks</p>
+                <p className="type-body">Real incident data grounding the speculative scenario.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key">
+                  The 2021 floods exposed complex, fragmented management of flood risk and a critical
+                  lack of coordinated response across multiple organisations. Thames Water, the Met
+                  Office, NHS, Fire Brigade, and the London Resilience Group all operated in silos —
+                  leading to confusion and ineffective flood mitigation.
+                </p>
+              </div>
             </div>
-            <div className="reveal" style={{ marginTop: 48 }}>
-              <img src={img("oceanus-arflow-overview.png")} alt="AR user flow overview" style={{ marginBottom: 2 }} />
-            </div>
-            <div className="oceanus-screens-strip reveal">
-              {[
-                { src: "oceanus-arflow-setup.png", caption: "01 — Scanning & Setup" },
-                { src: "oceanus-arflow-dispatch.png", caption: "02 — Mission Dispatched" },
-                { src: "oceanus-arflow-navigation.png", caption: "03 — AR Navigation" },
-                { src: "oceanus-arflow-arrive.png", caption: "04 — Arrive at Scene" },
-              ].map(({ src, caption }) => (
-                <div className="oceanus-screen-item" key={src}>
-                  <img src={img(src)} alt={caption} />
-                  <div className="oceanus-screen-caption">{caption}</div>
+
+            <SubDivider />
+
+            {/* Problem cards — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Three failure modes</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  {problems.map((p) => (
+                    <div key={p.num} className="border-b border-black/10 last:border-b-0 p-[20px]">
+                      <p className="type-eyebrow mb-[8px]">{p.num}</p>
+                      <p className="type-subhead mb-[10px]">{p.title}</p>
+                      <p className="type-body">{p.body}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="oceanus-screens-strip reveal">
-              {[
-                { src: "oceanus-arflow-guidance.png", caption: "05 — Guidance Overlay" },
-                { src: "oceanus-arflow-immobilize.png", caption: "06 — Immobilize Instruction" },
-                { src: "oceanus-arflow-complete.png", caption: "07 — Mission Complete" },
-              ].map(({ src, caption }) => (
-                <div className="oceanus-screen-item" key={src}>
-                  <img src={img(src)} alt={caption} />
-                  <div className="oceanus-screen-caption">{caption}</div>
+
+            <SubDivider />
+
+            {/* Stakeholder map */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Stakeholder analysis</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <img src="/oceanus-issue-stakeholders.png" alt="Stakeholder analysis diagram" className="w-full block" />
+                <p className="font-futura-heavy text-[11px] opacity-30 text-black mt-[6px]">Stakeholder relationship map — 2021 flood incident</p>
+              </div>
+            </div>
+          </section>
+
+          {/* 05 — System Design */}
+          <section id="s-system" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>05 — OCEANUS System Design</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">From fragmented response to coordinated action</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  OCEANUS reimagines the volunteer pipeline. Rather than the current six-step process —
+                  assessment, mobilisation, training, dispatch, evaluation, rehabilitation — the system
+                  condenses this into a streamlined AR-enabled flow.
+                </p>
+                <p className="type-body">
+                  Volunteers receive AR glasses, are taught basic operation in minutes, and are
+                  immediately assigned to specialist roles: Traffic Services, Community Services, Animal
+                  Services, or Medical Services.
+                </p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Design points — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Design rationale</p>
+                <p className="type-body">From insights to design points.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  {designPoints.map((dp) => (
+                    <div key={dp.num} className="border-b border-black/10 last:border-b-0 p-[20px] flex gap-[16px]">
+                      <span className="type-eyebrow shrink-0 mt-[2px]">{dp.num}</span>
+                      <div>
+                        <p className="type-subhead mb-[8px]">{dp.title}</p>
+                        <p className="type-body">{dp.body}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <div className="oceanus-screen-item" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(99,194,189,0.12)", padding: 32 }}>
-                <p style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(26,26,26,0.55)", textAlign: "center", maxWidth: "none" }}>
-                  Well done!<br />Continue mission?
+              </div>
+            </div>
+
+            <SubDivider />
+
+            <DecisionBlock>
+              The insight that shaped the entire system: volunteers don't fail because they lack courage
+              — they fail because they lack coordination and instruction. OCEANUS addresses exactly that gap.
+            </DecisionBlock>
+          </section>
+
+          {/* 06 — AR Hardware */}
+          <section id="s-hardware" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>06 — AR Glasses Hardware</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Designed for the chaos of disaster response</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  The OCEANUS AR glasses feature two distinct display systems working in parallel. The
+                  internal display provides the volunteer with visual guidance, directional audio, and a
+                  fixator for extended wear. The external display signals role and status to people around
+                  them.
                 </p>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* ── Reflection ── */}
-        <section className="oceanus-section">
-          <div className="oceanus-container">
-            <div className="oceanus-section-label">07 — Reflection</div>
-            <div className="oceanus-two-col reveal">
+            <SubDivider />
+
+            {/* Display systems — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
               <div>
-                <h2>What this project taught us about complex systems</h2>
-                <p>
-                  The most challenging part of OCEANUS was not designing the AR interface — it was understanding how a disaster response system actually fails. The 2021 London floods showed that technology alone is insufficient. The real problem was organisational: siloed stakeholders, unclear chains of authority, and no mechanism for rapidly deploying untrained but willing people.
-                </p>
-                <p>
-                  Speculative design forced us to hold two things simultaneously: the rigour of real climate data and the imagination of a world 50 years away. The futures cone methodology was essential for keeping our scenario grounded in plausibility rather than fantasy.
-                </p>
+                <p className="type-eyebrow mb-[16px]">Dual display system</p>
               </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  {[
+                    { role: "Internal",  desc: "Visual aid · Fixator · Auditory aid — provides information and guidance on volunteer tasks" },
+                    { role: "External",  desc: "External visual aid · Sensor · Audio reception — shows people who you are and provides guidance when necessary" },
+                  ].map((d) => (
+                    <div key={d.role} className="border-b border-black/10 last:border-b-0 p-[20px] flex gap-[16px]">
+                      <span className="type-eyebrow shrink-0 mt-[2px] uppercase">{d.role}</span>
+                      <p className="type-body">{d.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Glasses renders */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
               <div>
-                <p style={{ fontSize: 15, marginBottom: 24 }}>
-                  The insight that shaped the entire system was deceptively simple:{" "}
-                  <strong style={{ color: "#1A1A1A" }}>
-                    volunteers don't fail because they lack courage — they fail because they lack coordination and instruction.
-                  </strong>{" "}
-                  OCEANUS addresses exactly that gap.
+                <p className="type-eyebrow mb-[16px]">Hardware renders</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <img src="/oceanus-glasses-render-2.png" alt="AR glasses hardware render" className="w-full block" />
+                <img src="/oceanus-glasses-diagram.png" alt="AR glasses internal and external display system" className="w-full block" />
+                <p className="font-futura-heavy text-[11px] opacity-30 text-black">OCEANUS AR glasses — internal and external display system diagram</p>
+              </div>
+            </div>
+          </section>
+
+          {/* 07 — AR Vision */}
+          <section id="s-vision" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>07 — AR Vision — Medical Treatment User Flow</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">What the volunteer sees</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  The full AR user flow demonstrates a Medical Treatment mission. A volunteer is
+                  dispatched to assist a girl with a suspected fracture near a subway station.
                 </p>
-                <p style={{ fontSize: 14 }}>
-                  If repeated, we would conduct primary research with actual British Red Cross volunteers to pressure-test the system against real operational constraints, and run usability studies with the AR prototype to validate the cognitive load assumptions baked into the interface design.
+                <p className="type-body">
+                  OCEANUS navigates them to the scene, identifies the situation, and provides
+                  step-by-step first aid guidance — all within the AR field of view.
                 </p>
               </div>
             </div>
-          </div>
-        </section>
 
-       
+            <SubDivider />
+
+            {/* Flow overview image */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Full flow overview</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <img src="/oceanus-arflow-overview.png" alt="AR user flow overview" className="w-full block" />
+                <p className="font-futura-heavy text-[11px] opacity-30 text-black mt-[6px]">Complete AR user flow — Medical Treatment mission</p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Screen strips */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[40px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Mission steps 01–04</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="grid grid-cols-2 gap-[8px]">
+                  {arFlowRow1.map(({ src, caption }) => (
+                    <div key={src} className="relative overflow-hidden">
+                      <img src={`/${src}`} alt={caption} className="w-full block" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-[10px] pb-[8px] pt-[20px]">
+                        <p className="font-futura-medium text-[9px] tracking-[0.1em] uppercase text-white/80">{caption}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Mission steps 05–07</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="grid grid-cols-2 gap-[8px]">
+                  {arFlowRow2.map(({ src, caption }) => (
+                    <div key={src} className="relative overflow-hidden">
+                      <img src={`/${src}`} alt={caption} className="w-full block" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-[10px] pb-[8px] pt-[20px]">
+                        <p className="font-futura-medium text-[9px] tracking-[0.1em] uppercase text-white/80">{caption}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-center bg-brand/10 p-[24px]">
+                    <p className="font-futura-medium text-[10px] tracking-[0.12em] uppercase text-black/50 text-center">
+                      Well done!<br />Continue mission?
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 08 — Reflection */}
+          <section id="s-reflection" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>08 — Reflection</SectionLabel>
+
+            {/* Framing — 4-col */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">What this project taught us</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[16px]">
+                <p className="type-body-key">
+                  The most challenging part of OCEANUS was not designing the AR interface — it was
+                  understanding how a disaster response system actually fails.
+                </p>
+                <p className="type-body">
+                  The 2021 London floods showed that technology alone is insufficient. The real problem
+                  was organisational: siloed stakeholders, unclear chains of authority, and no mechanism
+                  for rapidly deploying untrained but willing people.
+                </p>
+                <p className="type-body">
+                  Speculative design forced us to hold two things simultaneously: the rigour of real
+                  climate data and the imagination of a world 50 years away. The futures cone methodology
+                  was essential for keeping our scenario grounded in plausibility rather than fantasy.
+                </p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Learnings */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Learnings</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  <div className="border-b border-black/10 p-[20px]">
+                    <p className="type-eyebrow mb-[12px]">What this demonstrates</p>
+                    <ul className="space-y-[8px]">
+                      {[
+                        "Speculative design works best when anchored in real systemic failures",
+                        "Organisational coordination is a harder problem than interface design",
+                        "Futures cone methodology keeps scenarios plausible rather than fantastical",
+                      ].map((item) => (
+                        <li key={item} className="flex items-start gap-[10px]">
+                          <span className="font-futura-light text-[11px] text-black/30 mt-[3px]">—</span>
+                          <p className="type-body">{item}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-[20px]">
+                    <p className="type-eyebrow mb-[12px]">If repeated</p>
+                    <p className="type-body">
+                      Conduct primary research with actual British Red Cross volunteers to pressure-test
+                      the system against real operational constraints, and run usability studies with
+                      the AR prototype to validate the cognitive load assumptions baked into the
+                      interface design.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Key insight */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Reflection</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <InsightBlock label="→ Key insight">
+                  Volunteers don't fail because they lack courage — they fail because they lack
+                  coordination and instruction. The design challenge was never the AR interface. It was
+                  building the organisational logic that makes the interface meaningful.
+                </InsightBlock>
+              </div>
+            </div>
+          </section>
+
+          {/* Back link */}
+          <div className="pt-[48px]">
+            <Link
+              to="/projects"
+              className="font-futura-heavy text-[12px] opacity-30 hover:opacity-100 transition-opacity inline-flex items-center gap-2"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" />
+              </svg>
+              Back to projects
+            </Link>
+          </div>
+
+        </div>
       </div>
-    </>
+    </div>
   );
 }

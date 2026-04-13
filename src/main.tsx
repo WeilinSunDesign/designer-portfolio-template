@@ -10,6 +10,7 @@ import SwiftfoodPage from "./swiftfood";
 import HealthtechPage from "./healthtech";
 import SmarthomePage from "./Smarthome";
 import Other4Page from "./other-4";
+import GenerativeImagePage from "./generative-image";
 
 import "./index.css";
 
@@ -25,6 +26,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/projects/healthtech" element={<HealthtechPage />} />
         <Route path="/projects/smarthome" element={<SmarthomePage />} />
         <Route path="/projects/other-4" element={<Other4Page />} />
+        <Route path="/projects/creative-2" element={<GenerativeImagePage />} />
       </Routes>
     </HashRouter>
   </StrictMode>

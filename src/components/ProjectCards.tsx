@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function ProjectCard({ project }) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <Link
       to={`/projects/${project.slug}`}
@@ -23,11 +26,20 @@ export default function ProjectCard({ project }) {
         </div>
 
         <div className="w-full aspect-[4/3] overflow-hidden px-5 py-4 md:px-8 md:py-6">
-        <img
-           src={project.image}
-           alt={project.title}
-          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-         />
+          {imgError ? (
+            <div className="w-full h-full border border-dashed border-black/15 bg-black/[0.02] flex items-center justify-center">
+              <span className="font-futura-medium text-[10px] text-black/25 uppercase tracking-widest">
+                Cover image
+              </span>
+            </div>
+          ) : (
+            <img
+              src={project.image}
+              alt={project.title}
+              onError={() => setImgError(true)}
+              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+          )}
         </div>
 
         <div className="mt-auto flex items-end justify-between gap-4 px-5 pb-5 pt-2 md:px-6 md:pb-6">

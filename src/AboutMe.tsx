@@ -48,7 +48,7 @@ export default function AboutMe() {
           <h2 className="text-[clamp(2.5rem,5vw,6rem)] tracking-tighter leading-[0.9] mb-[40px] md:mb-[64px]">
             About Me
           </h2>
-          <div className="font-futura-medium text-[14px] md:text-[16px] leading-[1.6] max-w-[480px] opacity-80">
+          <div className="type-body max-w-[480px]">
             <p>
               Hi, I am Weilin, a designer with a background in Material Science and Engineering.
               I design futures that are grounded in reality, approaching problems through both
@@ -60,20 +60,20 @@ export default function AboutMe() {
       </div>
 
       <div className="w-full border-b border-black pt-[40px] md:pt-[64px] pl-[24px] md:pl-[48px] pr-[24px] md:pr-[48px] pb-[40px] md:pb-[64px]">
-        <h3 className="font-sans text-sm tracking-widest uppercase opacity-40 mb-[24px]">
+        <h3 className="type-eyebrow mb-[24px]">
           Skills
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[40px]">
           {skills.map((group) => (
             <div key={group.category}>
-              <p className="font-futura-heavy text-[18px] mb-[16px]">
+              <p className="type-subhead text-[18px] mb-[16px]">
                 {group.category}
               </p>
               <div className="flex flex-wrap gap-[8px]">
                 {group.items.map((skill) => (
                   <span
                     key={skill}
-                    className="font-sans text-[12px] tracking-wide border border-black px-[12px] py-[6px] opacity-70"
+                    className="type-chip border border-black px-[12px] py-[6px] opacity-70"
                   >
                     {skill}
                   </span>

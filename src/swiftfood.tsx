@@ -1,31 +1,46 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "./components/Header";
 
 // ── Nav sections ──────────────────────────────────────────────────────────────
 
 const navSections = [
-  { id: "s-context",    label: "01 — Context" },
-  { id: "s-evolution",  label: "02 — Evolution" },
-  { id: "s-challenge",  label: "03 — Challenge" },
-  { id: "s-decisions",  label: "04 — Decisions" },
-  { id: "s-operations", label: "05 — Operations" },
-  { id: "s-access",     label: "06 — Access Control" },
-  { id: "s-outcomes",   label: "07 — Outcomes" },
+  { id: "s-context",       label: "01 — Overview" },
+  { id: "s-evolution",     label: "02 — Evolution" },
+  { id: "s-exploration",   label: "02b — Exploration" },
+  { id: "s-challenge",     label: "03 — Challenge" },
+  { id: "s-decisions",     label: "04 — Decisions" },
+  { id: "s-design-system", label: "04b — Design System" },
+  { id: "s-operations",    label: "05 — Operations" },
+  { id: "s-access",        label: "06 — Access Control" },
+  { id: "s-outcomes",      label: "07 — Outcomes" },
 ];
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const heroTags = ["Multi-role system design", "B2B2C", "Food delivery", "Mobile + Desktop", "Shipped"];
 
-const introDetails = [
+const introDetails: { label: string; value: string | React.ReactNode }[] = [
+  {
+    label: "Overview:",
+    value: (
+      <>
+        A food delivery platform targeting the London market, starting from individual
+        consumers and evolving into{" "}
+        <a href="https://swiftfood.uk/" target="_blank" rel="noopener noreferrer" className="text-brand underline">
+          catering
+        </a>{" "}
+        and{" "}
+        <a href="https://swiftfood.co.uk/RestaurantCatalogue" target="_blank" rel="noopener noreferrer" className="text-brand underline">
+          corporate
+        </a>{" "}
+        use cases.
+      </>
+    ),
+  },
   {
     label: "The core concept:",
     value: "Users can order from multiple street food vendors within a single delivery — a mixed-basket model that differs from traditional single-restaurant orders.",
-  },
-  {
-    label: "Overview:",
-    value: "Designing a multi-role food delivery system across B2C, catering, and corporate contexts",
   },
   { label: "Duration:", value: "1 Year" },
   { label: "Tools:",    value: "Figma, Google Ai Studio, Claude Code" },
@@ -37,19 +52,19 @@ const phases = [
     number: "Phase 01",
     title: "Individual ordering",
     label: "B2C foundation",
-    body: "The product began as a Gen Z–focused food delivery platform. We designed a mobile app for individual users and a web-based interface for catering. At this stage, the product was primarily consumer-focused, with catering as a secondary feature.",
+    body: "I designed a mobile app for individual users and a web interface for catering. The product was consumer-focused, with catering as a secondary feature.",
   },
   {
     number: "Phase 02",
     title: "Catering as the core",
-    label: "The shift",
-    body: "Operational data revealed individual orders had low frequency and high delivery cost per order, while catering orders showed higher value and consistency. We shifted focus toward serving student societies and large group events — moving from on-demand to planned consumption.",
+    label: "Event",
+    body: "Operational data showed individual orders had low frequency and high cost. Catering showed higher value. I shifted focus toward student societies and large group events — from on-demand to planned consumption.",
   },
   {
     number: "Phase 03",
     title: "Corporate system",
     label: "B2B2C",
-    body: "Building on catering, we expanded into corporate services. Companies subscribe, managers control budgets, and employees place orders within shared constraints. One order — multiple realities: a personal lunch choice, a production queue, a multi-stop pickup route, a budget-controlled event.",
+    body: "The product expanded into corporate services. Companies subscribe, managers control budgets, employees order within shared constraints. One order — multiple realities: a meal, a production ticket, a pickup route, a budget entry.",
   },
 ];
 
@@ -57,32 +72,32 @@ const roles = [
   {
     name: "Employee",
     goal: "Speed and ease",
-    detail: "A personal lunch choice. Wants a smooth, fast ordering experience that doesn't feel corporate or constrained — discover food, browse a market, check out quickly.",
+    points: ["Personal lunch choice", "Fast, low-friction ordering", "Discovery without constraint"],
     pill: "Mobile app · primary consumer experience",
   },
   {
     name: "Manager",
     goal: "Budget control",
-    detail: "Needs to monitor team spending, set individual employee allowances, and approve or restrict ordering behaviour. Oversight is the primary job — not ordering.",
+    points: ["Monitor team spending", "Set individual allowances", "Oversight — not ordering"],
     pill: "B2B portal · team budget & spend tracking",
   },
   {
     name: "Merchant",
     goal: "Operational feasibility",
-    detail: "A production queue. Needs to manage menu availability in real time, track incoming orders by ticket, and understand revenue. Fast-paced and time-sensitive — especially at peak lunch hours.",
+    points: ["A production queue", "Real-time menu and order management", "Time-sensitive at peak hours"],
     pill: "Tablet portal · order & menu management",
   },
   {
     name: "Rider",
     goal: "Efficiency and clarity",
-    detail: "A multi-stop pickup route. The mixed-basket model means a single order may include items from two or three stalls — the rider interface had to communicate this with minimum cognitive load.",
+    points: ["Multi-stop pickup route", "Mixed-basket means multiple stalls per order", "Minimum cognitive load"],
     pill: "Mobile app · task execution · low cognitive load",
     wide: true,
   },
   {
     name: "Company",
     goal: "Cost structure",
-    detail: "Operates through the Manager account. The company sets the budget framework; the manager executes it. A separate portal would have added onboarding friction with no meaningful UX gain.",
+    points: ["Budget framework — executed through Manager", "No independent portal needed", "Separate portal would add onboarding friction with no UX gain"],
     pill: "No independent portal — managed through Manager",
     wide: true,
   },
@@ -94,62 +109,104 @@ const decisions = [
     title: "Soft control instead of rigid enforcement",
     tension: "Employees want freedom. Managers need control.",
     explored: ["Hard limits", "Approval flows", "Soft constraints (final decision)"],
-    body: "We explored hard limits that would block checkout and approval flows that required manager sign-off. Both interrupted the employee's experience at the wrong moment.",
-    decision: "Budget is visible throughout the ordering flow and highlighted when approaching the limit — but never blocks checkout. This balanced autonomy and control without placing cognitive burden on either role.",
+    body: "Hard limits blocked checkout. Approval flows required manager sign-off. Both interrupted the employee at the wrong moment.",
+    decision: "Budget is visible throughout the flow and highlighted near the limit — but never blocks checkout. This balanced autonomy and control without placing cognitive burden on either role.",
   },
   {
     number: "02",
     title: "One system, multiple views",
     tension: "The same order means something different to everyone.",
-    body: "The platform's mixed-basket model — ordering from multiple stalls in one delivery — creates three separate cognitive challenges simultaneously: the employee sees a meal, the merchant sees a production ticket, the rider sees a pickup sequence.",
-    decision: "Instead of simplifying the system, we built a shared underlying data model with multiple role-specific representations. Each role sees only what matters to them. The data is shared; the view is not.",
+    body: "The mixed-basket model creates three simultaneous challenges: the employee sees a meal, the merchant sees a production ticket, the rider sees a pickup sequence.",
+    decision: "I designed a shared data model with role-specific representations. Each role sees only what matters to them. The data is shared; the view is not.",
   },
   {
     number: "03",
     title: "Removing a product that shouldn't exist",
     tension: "Complexity from building rather than not building.",
-    body: "Early in the project we considered a dedicated company admin portal. After mapping actual tasks against the manager's workflow, we found near-total overlap in functionality.",
-    decision: "Company functions were integrated into the manager role with elevated permission flags. The most impactful decision was choosing not to build something — reducing complexity and improving onboarding.",
+    body: "A dedicated company admin portal was considered. Mapping tasks against the manager's workflow revealed near-total overlap in functionality.",
+    decision: "Company functions were integrated into the manager role with elevated permission flags. The most impactful decision was choosing not to build — reducing complexity and improving onboarding.",
   },
 ];
 
 const merchantPrinciples = [
-  { title: "One screen, one task",      body: "Merchants see only the current orders for their stall, displayed as large ticket cards. No navigation, no settings — just what needs to be cooked right now." },
-  { title: "No typing required",        body: "Accepting an order, marking it as ready, and flagging an issue are all single taps. Every interaction is binary: confirm or flag." },
-  { title: "Loud, unmissable alerts",   body: "New orders trigger a full-screen alert with audio. Merchants are cooking and can't watch a screen — the notification had to be impossible to miss." },
-  { title: "Error recovery over precision", body: "If a merchant accidentally dismisses an order, they can recover it within 60 seconds. The UI needed to be robust to human error." },
+  { title: "One screen, one task",         body: "Merchants see only current orders for their stall, displayed as large ticket cards. No navigation — just what needs to be cooked now." },
+  { title: "No typing required",           body: "Accepting an order, marking ready, and flagging an issue are single taps. Every interaction is binary: confirm or flag." },
+  { title: "Loud, unmissable alerts",      body: "New orders trigger a full-screen alert with audio. Merchants are cooking — the notification had to be impossible to miss." },
+  { title: "Error recovery over precision", body: "If a merchant dismisses an order accidentally, they can recover within 60 seconds. The interface is robust to human error." },
 ];
 
 const outcomes = [
-  { stat: "1,000+",  label: "Orders in the first week" },
-  { stat: "2×",      label: "Merchant count within the first week" },
+  { stat: "1,000+",  label: "Orders in first week" },
+  { stat: "2×",      label: "Merchant growth" },
   { stat: "2×",      label: "Weekly orders after optimisation" },
-  { stat: "~£7,000", label: "GMV in the first 3 months" },
+  { stat: "~£7,000", label: "GMV in first 3 months" },
 ];
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <p className="font-futura-light text-[12px] uppercase tracking-[0.18em] text-black/45 mb-[8px]">
+    <p className="type-section-nav mb-[32px] md:mb-[48px]">
       {children}
     </p>
   );
 }
 
-function SectionTitle({ children }: { children: string }) {
-  return (
-    <h2 className="font-inria-serif text-[clamp(1.8rem,2.8vw,3rem)] leading-[1.05] tracking-tight mb-[20px] text-black">
-      {children}
-    </h2>
-  );
-}
 
 function DecisionBlock({ children }: { children: React.ReactNode }) {
   return (
     <div className="border-l-2 border-black pl-5 py-1 my-6 bg-black/[0.02]">
-      <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 mb-2">Design decision</p>
-      <p className="font-futura-light text-[15px] leading-relaxed text-black">{children}</p>
+      <p className="type-eyebrow mb-2">Design decision</p>
+      <p className="type-body-key">{children}</p>
+    </div>
+  );
+}
+
+function TreeNode({ label, sub }: { label: string; sub?: string }) {
+  return (
+    <div className="border border-black/70 px-[8px] py-[6px] text-center min-w-0">
+      <p className="type-body-sm leading-snug break-words">{label}</p>
+      {sub && <p className="type-eyebrow mt-[2px]">{sub}</p>}
+    </div>
+  );
+}
+
+function TreePipe() {
+  return <div className="w-px h-[16px] bg-black/20 mx-auto" />;
+}
+
+function TreeConnector({ count }: { count: number }) {
+  const centers = Array.from({ length: count }, (_, i) =>
+    ((2 * i + 1) / (2 * count)) * 100
+  );
+  return (
+    <div className="relative w-full" style={{ height: "24px" }}>
+      {/* Vertical from parent down to bar */}
+      <div className="absolute bg-black/20" style={{ left: "50%", transform: "translateX(-50%)", width: "1px", top: 0, height: "50%" }} />
+      {/* Horizontal bar: first child center → last child center */}
+      <div className="absolute bg-black/20" style={{ left: `${centers[0]}%`, right: `${100 - centers[count - 1]}%`, height: "1px", top: "50%" }} />
+      {/* Vertical drop to each child */}
+      {centers.map((pct, i) => (
+        <div key={i} className="absolute bg-black/20" style={{ left: `${pct}%`, transform: "translateX(-50%)", width: "1px", top: "50%", bottom: 0 }} />
+      ))}
+    </div>
+  );
+}
+
+function SubDivider() {
+  return <div className="border-t border-black/[0.07] mt-[40px] mb-[8px]" />;
+}
+
+function ImagePlaceholder({ filename, caption, ratio = "16/9" }: { filename: string; caption?: string; ratio?: string }) {
+  return (
+    <div className="flex flex-col gap-[6px]">
+      <div
+        className="w-full bg-black/[0.03] border border-dashed border-black/12 flex items-center justify-center"
+        style={{ aspectRatio: ratio }}
+      >
+        <p className="type-eyebrow text-black/25">{filename}</p>
+      </div>
+      {caption && <p className="font-futura-heavy text-[11px] opacity-30 text-black">{caption}</p>}
     </div>
   );
 }
@@ -157,8 +214,8 @@ function DecisionBlock({ children }: { children: React.ReactNode }) {
 function InsightBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="border border-black/20 p-5 md:p-6 my-4 flex flex-col md:flex-row gap-2 md:gap-5">
-      <span className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 whitespace-nowrap md:mt-[2px]">{label}</span>
-      <p className="font-futura-light text-[14px] md:text-[15px] leading-relaxed text-black">{children}</p>
+      <span className="type-eyebrow whitespace-nowrap md:mt-[2px]">{label}</span>
+      <p className="font-futura-medium text-[14px] md:text-[15px] leading-relaxed text-black">{children}</p>
     </div>
   );
 }
@@ -215,10 +272,10 @@ function SidebarNav({
               {/* Label: only for active, fade in/out */}
               <span
                 style={{
-                  fontSize:      "10px",
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  fontFamily:    "var(--font-futura-light)",
+                  fontSize:      "11px",
+                  letterSpacing: "0.02em",
+                  textTransform: "none",
+                  fontFamily:    "var(--font-futura-medium)",
                   color:         isActive ? "#63C2BD" : "#131313",
                   whiteSpace:    "nowrap",
                   opacity:       isActive ? 1 : 0,
@@ -320,6 +377,11 @@ export default function SwiftFood() {
   return (
     <div className="min-h-screen w-full bg-my-bg text-black font-serif">
 
+      {/* Fixed header — always visible */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Header right="projects" />
+      </div>
+
       {/* ══════════════════════════════════════════════
           SCREEN 1 — HERO
           Full-viewport. swiftfood.png is the background.
@@ -339,8 +401,6 @@ export default function SwiftFood() {
           backgroundRepeat:   "no-repeat",
         }}
       >
-        {/* Header scrolls away with hero */}
-        <Header />
 
         {/* Sticky title block — stays put while image parallaxes under it */}
         <div ref={titleBlockRef} className="sticky top-[48px] md:top-[64px] px-[24px] md:px-[48px] xl:px-[80px] pt-[20px] md:pt-[28px] pb-[16px] md:pb-[22px]">
@@ -355,7 +415,7 @@ export default function SwiftFood() {
               marginBottom: "0",
             }}
           >
-            Multi-role food delivery&nbsp;&nbsp;Platform design&nbsp;&nbsp;|&nbsp;&nbsp;0-1
+            Multi-sided Marketplace Platform for Food Delivery
           </h1>
 
           {/* Chips — filled with bg-my-bg */}
@@ -363,7 +423,7 @@ export default function SwiftFood() {
             {heroTags.map((t) => (
               <span
                 key={t}
-                className="inline-flex rounded-full border border-black px-3 py-1 font-futura-medium text-[10px] uppercase tracking-[0.12em] text-black bg-my-bg"
+                className="inline-flex rounded-full border border-black px-3 py-1 type-chip text-black bg-my-bg"
               >
                 {t}
               </span>
@@ -374,7 +434,8 @@ export default function SwiftFood() {
         {/* Down arrow — visible only at scroll=0, hides the moment user scrolls */}
         <button
           onClick={() => {
-            window.scrollTo({ top: window.innerHeight - titleH, behavior: "smooth" });
+            const headerH = window.innerWidth >= 768 ? 64 : 48;
+            window.scrollTo({ top: window.innerHeight - titleH - headerH, behavior: "smooth" });
           }}
           aria-label="Scroll down"
           className="absolute left-1/2 -translate-x-1/2 bottom-[28px] flex items-center justify-center rounded-full bg-my-bg border border-black/25 group hover:border-brand transition-colors duration-200"
@@ -411,45 +472,28 @@ export default function SwiftFood() {
       {/* Mobile: auto height, single column. md+: calc(100svh - titleH), two-column. */}
       <section
         ref={introRef}
-        className="flex flex-col overflow-hidden"
-        style={titleH > 0 && window.innerWidth >= 768
-          ? { height: `calc(100svh - ${titleH}px)` }
-          : undefined}
+        className="flex flex-col pb-[56px] md:pb-[80px]"
       >
-        <div className="flex flex-col md:grid md:grid-cols-2 md:flex-1 md:min-h-0 md:h-full px-[24px] md:px-[96px]">
+        <div className="flex flex-col md:grid md:grid-cols-2 px-[24px] md:px-[96px]">
 
-          {/* Left — image + intro paragraph, mobile: natural flow, desktop: column */}
-          <div className="flex flex-col">
+          {/* Left — image */}
+          <div className="flex flex-col justify-center self-stretch">
             <img
               src="/sfintro.png"
               alt="SwiftFood app on device mockups"
-              className="w-full object-contain object-top"
+              className="w-full"
               style={{ display: "block" }}
             />
-            <div className="pt-[10px] pb-[24px]">
-              <p className="font-futura-light text-[14px] md:text-[15px] leading-relaxed text-black">
-                We built a food delivery platform targeting the London market, starting from individual
-                consumers and evolving into{" "}
-                <a href="https://swiftfood.uk/" target="_blank" rel="noopener noreferrer" className="text-brand">
-                  catering
-                </a>{" "}
-                and{" "}
-                <a href="https://swiftfood.co.uk/RestaurantCatalogue" target="_blank" rel="noopener noreferrer" className="text-brand">
-                  corporate
-                </a>{" "}
-                use cases.
-              </p>
-            </div>
           </div>
 
           {/* Right — project details */}
-          <div className="flex flex-col justify-center py-[28px] md:py-[40px] md:pl-[48px]">
+          <div className="flex flex-col justify-center py-[28px] md:pt-[112px] md:pb-[72px] md:pl-[48px]">
             {introDetails.map((item) => (
               <div
                 key={item.label}
-                className="grid grid-cols-[110px_1fr] md:grid-cols-[150px_1fr] gap-x-[16px] md:gap-x-[20px] py-[12px] md:py-[20px] border-b border-black/12 last:border-b-0 items-start"
+                className="grid grid-cols-[100px_1fr] md:grid-cols-[130px_1fr] gap-x-[10px] md:gap-x-[14px] py-[12px] md:py-[20px] border-b border-black/12 last:border-b-0 items-start"
               >
-                <p className="font-futura-light text-[11px] md:text-[12px] text-black/40 leading-relaxed pt-[2px]">
+                <p className="type-eyebrow md:text-[14px] leading-relaxed pt-[2px]">
                   {item.label}
                 </p>
                 <p className="font-futura-medium text-[13px] md:text-[15px] leading-relaxed text-black">
@@ -465,7 +509,7 @@ export default function SwiftFood() {
           CASE STUDY SECTIONS
           Sidebar appears once this div enters the viewport.
       ══════════════════════════════════════════════ */}
-      <div ref={caseStudyRef} className="relative border-t border-black">
+      <div ref={caseStudyRef} className="relative">
 
         <SidebarNav
           active={activeSection}
@@ -475,322 +519,865 @@ export default function SwiftFood() {
 
         <div className="w-full px-[24px] md:px-[192px] pb-[80px]">
 
-          {/* 01 — Context */}
-          <section id="s-context" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
-            <SectionLabel>01 — Context</SectionLabel>
-            <SectionTitle>The platform and the system challenge</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-4">
-              As the product evolved, one key complexity emerged:{" "}
-              <strong className="font-futura-medium">one order — multiple realities.</strong> The same
-              order is interpreted differently by each role: an employee sees a personal lunch choice; a
-              merchant sees a production queue; a rider sees a multi-stop pickup route; a manager sees a
-              budget-controlled event; a company sees a cost structure. This was not a UI problem — it
-              was a system design problem.
-            </p>
-            <div className="border border-black/20 p-6">
-              <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 mb-3">My role</p>
-              <h3 className="font-futura-medium text-[15px] mb-3 text-black">Founding Product Designer — 0→1</h3>
-              <p className="font-futura-light text-[14px] leading-relaxed text-black mb-4">
-                Working directly with the CEO and CMO to define the product from 0→1. My role was not
-                just designing interfaces — it was defining how the system works.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-black/10 pt-4">
+          {/* 01 — Overview */}
+          <section id="s-context" className="pb-[40px] md:pb-[56px] border-b border-black/15">
+            <div className="border-t border-black/15 mb-[8px]" />
+            <SectionLabel>01 — Overview</SectionLabel>
+
+            {/* Product Ecosystem — text col 1 | diagram cols 2-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[56px] md:mb-[72px]">
+              <div>
+                <p className="type-eyebrow md:text-[14px] mb-[20px]">Product Ecosystem</p>
+                <p className="type-body">
+                  Swiftfood evolved from a consumer-focused delivery concept into a multi-line service ecosystem, spanning individual ordering, catering, and corporate lunch — all supported by a shared operational backbone.
+                </p>
+              </div>
+              <div className="md:col-span-3 flex flex-col items-center gap-0 w-full">
+                <TreeNode label="Swiftfood Product Ecosystem" />
+                <TreeConnector count={3} />
+                <div className="flex items-start gap-[12px] w-full">
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <TreeNode label="Individual Ordering (B2C)" />
+                    <TreePipe />
+                    <TreeNode label="Consumer App" sub="Mobile" />
+                  </div>
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <TreeNode label="Catering & Event Ordering" />
+                    <TreePipe />
+                    <TreeNode label="Catering Web" sub="Desktop" />
+                  </div>
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <TreeNode label="Corporate Office Ordering (B2B2C)" />
+                    <TreeConnector count={2} />
+                    <div className="flex items-start gap-[8px] w-full">
+                      <div className="flex flex-col items-center flex-1 min-w-0">
+                        <TreeNode label="Manager View" />
+                      </div>
+                      <div className="flex flex-col items-center flex-1 min-w-0">
+                        <TreeNode label="Employee View" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full border-t border-black/10 border-dashed my-[20px]" />
+                <TreeNode label="Shared Operational Layer" />
+                <TreeConnector count={3} />
+                <div className="flex items-start gap-[12px] w-full">
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <TreeNode label="Merchant App" sub="Mobile" />
+                    <TreeConnector count={2} />
+                    <div className="flex items-start gap-[8px] w-full">
+                      <div className="flex flex-col items-center flex-1 min-w-0">
+                        <TreeNode label="Manager View" />
+                      </div>
+                      <div className="flex flex-col items-center flex-1 min-w-0">
+                        <TreeNode label="Order View" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <TreeNode label="Rider App" sub="Mobile" />
+                  </div>
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <TreeNode label="Order Management System" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* My Role — horizontal tree: root left → 5 role boxes right */}
+            <div className="mb-[40px] md:mb-[56px]">
+              <p className="type-eyebrow md:text-[14px] mb-[20px]">My Role</p>
+
+              <div className="hidden md:flex items-stretch">
+
+                {/* Root node */}
+                <div className="flex items-center flex-shrink-0 mr-[16px]">
+                  <p className="font-futura-medium text-brand leading-snug whitespace-nowrap" style={{ fontSize: "17px" }}>
+                    Founding Product Designer
+                  </p>
+                </div>
+
+                {/* Connector: mirrors role column (same gap-[8px] + flex-1) so rows align */}
+                <div className="flex flex-col gap-[8px] self-stretch flex-shrink-0" style={{ width: "48px" }}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div key={i} className="relative flex-1">
+                      {/* Vertical bar segment — from center of first to center of last */}
+                      <div
+                        className="absolute bg-black/20"
+                        style={{ left: "50%", transform: "translateX(-50%)", width: "1px", top: i === 0 ? "50%" : "-4px", bottom: i === 4 ? "50%" : "-4px" }}
+                      />
+                      {/* Horizontal trunk from root (left edge) to vertical bar — center row only */}
+                      {i === 2 && (
+                        <div className="absolute bg-black/20" style={{ left: 0, right: "50%", height: "1px", top: "50%", transform: "translateY(-50%)" }} />
+                      )}
+                      {/* Horizontal prong from vertical bar to role box */}
+                      <div className="absolute bg-black/20" style={{ left: "50%", right: 0, height: "1px", top: "50%", transform: "translateY(-50%)" }} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* 5 role boxes — separate, not in one big border */}
+                <div className="flex flex-col gap-[8px] flex-1">
+                  {[
+                    { title: "System Architect",            body: "Defined a multi-role system aligning five user mental models.",     icon: "/icons/icon-architecture.svg" },
+                    { title: "Product Strategist",          body: "Scaled the product from B2C to catering and corporate.",            icon: "/icons/icon-structure.svg" },
+                    { title: "UX Lead",                     body: "Led end-to-end UX across all platforms.",                          icon: "/icons/icon-interaction.svg" },
+                    { title: "Front-end Collaborator",      body: "Worked with engineers to ship and refine front-end.",               icon: "/icons/icon-platforms.svg" },
+                    { title: "Cross-functional Integrator", body: "Turned business and operational constraints into product decisions.", icon: "/icons/icon-bridge.svg" },
+                  ].map(({ title, body, icon }) => (
+                    <div key={title} className="border border-black/15 px-[16px] py-[12px] flex items-center gap-[12px]">
+                      <img src={icon} alt="" className="w-[56px] h-[56px] flex-shrink-0" style={{ filter: "brightness(0)", opacity: 0.6 }} />
+                      <div>
+                        <p className="type-body-key mb-[2px]">{title}</p>
+                        <p className="type-body">{body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+
+              {/* Mobile fallback — simple list */}
+              <div className="md:hidden flex flex-col gap-[8px]">
                 {[
-                  "Defining the overall product and system architecture",
-                  "Translating business evolution into scalable product structures",
-                  "Designing cross-role interaction logic",
-                  "Leading UX across all platforms — mobile + desktop, multiple roles",
-                  "Bridging business, operations, and engineering through design",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-2 py-1">
-                    <span className="font-futura-light text-[11px] text-black/30 mt-[3px]">—</span>
-                    <p className="font-futura-light text-[13.5px] leading-relaxed text-black">{item}</p>
+                  { title: "System Architect",            body: "Defined a multi-role system aligning five user mental models.",     icon: "/icons/icon-architecture.svg" },
+                  { title: "Product Strategist",          body: "Scaled the product from B2C to catering and corporate.",            icon: "/icons/icon-structure.svg" },
+                  { title: "UX Lead",                     body: "Led end-to-end UX across all platforms.",                          icon: "/icons/icon-interaction.svg" },
+                  { title: "Front-end Collaborator",      body: "Worked with engineers to ship and refine front-end.",               icon: "/icons/icon-platforms.svg" },
+                  { title: "Cross-functional Integrator", body: "Turned business and operational constraints into product decisions.", icon: "/icons/icon-bridge.svg" },
+                ].map(({ title, body, icon }) => (
+                  <div key={title} className="border border-black/15 px-[16px] py-[12px] flex items-start gap-[12px]">
+                    <img src={icon} alt="" className="w-[28px] h-[28px] flex-shrink-0 mt-[2px]" style={{ filter: "brightness(0)", opacity: 0.6 }} />
+                    <div>
+                      <p className="type-body-key mb-[2px]">{title}</p>
+                      <p className="type-body">{body}</p>
+                    </div>
                   </div>
                 ))}
               </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Bottom — paragraph + single full-width image */}
+            <div className="flex flex-col gap-[32px]">
+
+              {/* Paragraph — plain body text, no bold */}
+              <div className="md:w-[50%] flex flex-col gap-[12px]">
+                <p className="type-eyebrow mb-[8px]">Multi-role Platform</p>
+                <p className="type-body">
+                  Swiftfood operates as a multi-role platform composed of distinct user groups and interfaces.
+                </p>
+                <p className="type-body">
+                  Employees order via a mobile app, managers access a control interface, merchants use a fulfilment app, and riders operate a delivery app — all connected through a shared order system.
+                </p>
+              </div>
+
+              {/* Full-width 16:9 image with caption */}
+              <div className="w-full flex flex-col gap-[10px]">
+                <ImagePlaceholder
+                  filename="sf-system-overview.png"
+                  ratio="16/9"
+                />
+                <div className="flex items-start justify-between gap-[16px]">
+                  <p className="type-eyebrow">How the system works</p>
+                  <p className="type-body-sm text-black/40">
+                    One order — four simultaneous realities: employee meal, merchant ticket, rider route, manager budget entry.
+                  </p>
+                </div>
+              </div>
+
             </div>
           </section>
 
           {/* 02 — Product Evolution */}
           <section id="s-evolution" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
-            <SectionLabel>02 — Product Evolution</SectionLabel>
-            <SectionTitle>From individual to group to organisation</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-8">
-              The product didn't start as a B2B2C platform. Each phase of business evolution redefined
-              what the product was — and required a complete rethinking of the system architecture.
-            </p>
-            <div className="space-y-0 border border-black/20">
-              {phases.map((phase, i) => (
-                <div
-                  key={phase.number}
-                  className={`p-6 flex flex-col md:flex-row gap-6 ${i < phases.length - 1 ? "border-b border-black/10" : ""}`}
-                >
-                  <div className="md:w-[180px] shrink-0">
-                    <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 mb-1">{phase.number}</p>
-                    <h3 className="font-futura-medium text-[15px] text-black mb-1">{phase.title}</h3>
-                    <span className="font-futura-light text-[10px] uppercase tracking-[0.1em] border border-black/20 px-2 py-1 text-black/45 inline-block">{phase.label}</span>
-                  </div>
-                  <p className="font-futura-light text-[14px] leading-relaxed text-black flex-1">{phase.body}</p>
+            <SectionLabel>02 — Product Evolution: From individual to catering to B2B2C</SectionLabel>
+            <div className="flex flex-col">
+
+              {/* Full-width spine with 3 phase dots + brand dot at 1/3 */}
+              <div className="relative flex items-center w-full mb-[24px]" style={{ height: "16px" }}>
+                <div className="absolute left-0 right-0 h-px bg-black/15" />
+                <div className="absolute inset-0 flex justify-between items-center">
+                  {phases.map((phase) => (
+                    <div key={phase.number} className="flex flex-col items-center" style={{ width: "33.33%" }}>
+                      <div className="w-[8px] h-[8px] rounded-full border border-black/70 bg-my-bg" />
+                    </div>
+                  ))}
                 </div>
-              ))}
+                {/* Brand double-ring dot at 1/3 — marks the shift from B2C to catering */}
+                <div
+                  className="absolute z-20 group cursor-default"
+                  style={{ left: "calc(33.33% - 8px)", top: "0" }}
+                >
+                  <div
+                    className="rounded-full border border-brand bg-my-bg flex items-center justify-center transition-transform duration-300 ease-out group-hover:scale-[1.6]"
+                    style={{ width: "16px", height: "16px" }}
+                  >
+                    <div
+                      className="rounded-full bg-brand transition-transform duration-300 ease-out group-hover:scale-[0.7]"
+                      style={{ width: "6px", height: "6px" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Phase brief content */}
+              <div className="flex w-full mb-[32px]">
+                {phases.map((phase) => (
+                  <div key={phase.number} className="flex-1 flex flex-col items-center text-center px-[32px]">
+                    <p className="type-eyebrow mb-[6px]">{phase.number}</p>
+                    <h3 className="type-subhead mb-[8px]">{phase.title}</h3>
+                    <span className="inline-flex rounded-full border border-black px-3 py-1 type-chip text-black bg-my-bg">{phase.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Phase design detail cards — dashed borders, aligned with timeline dots above */}
+              <div className="flex w-full gap-[12px]">
+
+                {/* Phase 01 */}
+                <div className="flex-1 border border-dashed border-black/25 p-[24px]">
+                  <p className="font-futura-medium text-[11px] text-black/35 uppercase tracking-[0.1em] mb-[16px]">Mobile-led</p>
+                  <p className="type-body mb-[20px]">The product initially focused on individual ordering, with a mobile app as the primary interface.</p>
+                  <p className="type-eyebrow mb-[10px]">The design prioritised</p>
+                  <ul className="space-y-[8px]">
+                    {["Fast ordering flow", "Expressive, Gen Z–oriented visual style", "Discovery-driven browsing"].map((item) => (
+                      <li key={item} className="flex items-start gap-[10px]">
+                        <span className="w-[4px] h-[4px] rounded-full bg-black/25 mt-[7px] flex-shrink-0" />
+                        <p className="type-body-sm">{item}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Phase 02 */}
+                <div className="flex-1 border border-dashed border-black/25 p-[24px]">
+                  <p className="font-futura-medium text-[11px] text-black/35 uppercase tracking-[0.1em] mb-[16px]">Web-led</p>
+                  <p className="type-body mb-[16px]">Catering demand shifted the product toward group ordering.</p>
+                  <div className="border-l-2 border-brand pl-[12px] py-[2px] mb-[20px]">
+                    <p className="type-body-sm text-brand">From mobile-first → web-first</p>
+                  </div>
+                  <p className="type-eyebrow mb-[10px]">Catering required</p>
+                  <ul className="space-y-[8px] mb-[20px]">
+                    {["Planning and coordination", "Larger order volumes", "Shared decision-making"].map((item) => (
+                      <li key={item} className="flex items-start gap-[10px]">
+                        <span className="w-[4px] h-[4px] rounded-full bg-black/25 mt-[7px] flex-shrink-0" />
+                        <p className="type-body-sm">{item}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="type-eyebrow mb-[10px]">Interface evolved to support</p>
+                  <ul className="space-y-[8px]">
+                    {["Clarity over exploration", "Structured flows over expressive navigation"].map((item) => (
+                      <li key={item} className="flex items-start gap-[10px]">
+                        <span className="w-[4px] h-[4px] rounded-full bg-black/25 mt-[7px] flex-shrink-0" />
+                        <p className="type-body-sm">{item}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Phase 03 */}
+                <div className="flex-1 border border-dashed border-black/25 p-[24px]">
+                  <p className="font-futura-medium text-[11px] text-black/35 uppercase tracking-[0.1em] mb-[16px]">System-led</p>
+                  <p className="type-body mb-[16px]">Corporate services expanded the product into a multi-role platform.</p>
+                  <div className="border-l-2 border-brand pl-[12px] py-[2px] mb-[20px]">
+                    <p className="type-body-sm text-brand">From expressive → systematic</p>
+                  </div>
+                  <p className="type-body-sm">The original Gen Z visual style was replaced with a neutral, scalable design language that works across roles and contexts.</p>
+                  <p className="type-body-sm mt-[12px] text-black/40 italic">This prioritised scalability over expressiveness.</p>
+                </div>
+
+              </div>
+
+
             </div>
-            <InsightBlock label="The shift">
-              After launch, operational data revealed individual orders had low frequency and high
-              delivery cost. Catering orders showed higher value and consistency. Catering was not just
-              a feature — it was the first signal of a viable model.
-            </InsightBlock>
+          </section>
+
+          {/* 02b — Early Exploration */}
+          <section id="s-exploration" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>02b — Early Exploration</SectionLabel>
+
+            {/* A market-inspired interface — text col 1 | blank col 2 | bullets cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">A market-inspired interface</p>
+                <p className="type-body-key mb-[16px]">
+                  In the early stage, I explored a more expressive interaction model inspired by physical street markets.
+                </p>
+                <p className="type-body">
+                  The goal was to create an experience closer to how people explore food in real life.
+                </p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[24px]">
+                <ul className="space-y-[12px]">
+                  {[
+                    "A map-based entry point instead of a list",
+                    "Poster-style browsing to mimic real market discovery",
+                    "Tinder-like swiping for menu navigation",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-[12px]">
+                      <span className="w-[4px] h-[4px] rounded-full bg-black/25 mt-[8px] flex-shrink-0" />
+                      <p className="type-body">{item}</p>
+                    </li>
+                  ))}
+                </ul>
+                {/* Exploration sketches */}
+                <div className="flex gap-[12px]">
+                  <div className="flex-1"><ImagePlaceholder filename="sf-explore-map.png" caption="Map-based entry" ratio="9/16" /></div>
+                  <div className="flex-1"><ImagePlaceholder filename="sf-explore-poster.png" caption="Poster browsing" ratio="9/16" /></div>
+                  <div className="flex-1"><ImagePlaceholder filename="sf-explore-swipe.png" caption="Swipe navigation" ratio="9/16" /></div>
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Why this direction was abandoned — text col 1 | blank col 2 | bullets cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[40px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Why this direction was abandoned</p>
+                <p className="type-body">Three key risks identified:</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <ul className="space-y-[12px]">
+                  {[
+                    "Higher learning cost for first-time users",
+                    "Slower interaction in a time-sensitive context (lunch ordering)",
+                    "Increased complexity when scaling across multiple roles",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-[12px]">
+                      <span className="w-[4px] h-[4px] rounded-full bg-black/25 mt-[8px] flex-shrink-0" />
+                      <p className="type-body">{item}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <SubDivider />
+
             <DecisionBlock>
-              I translated each stage of business evolution into product structure — redefining the
-              system architecture at each phase, designing how orders scale across contexts, and
-              establishing interaction logic across roles. The design problem shifted from designing for
-              a user to designing for a system of users.
+              I adopted a more familiar structure: list-based browsing, standard navigation, and faster, more predictable interactions.
             </DecisionBlock>
+
+            <SubDivider />
+
+            {/* The trade-off — text col 1 | blank col 2 | content cols 3-4 */}
+            <div className="border border-black/20 p-[24px] md:p-[28px] mt-[24px] grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[20px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">The trade-off</p>
+                <div className="border-l-2 border-brand pl-[12px] py-[2px]">
+                  <p className="type-body-sm text-brand">Novelty vs usability</p>
+                </div>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body mb-[16px]">
+                  An expressive interface might have matched the street-market brand, but it would have introduced friction at every point in the ordering flow.
+                </p>
+                <p className="type-eyebrow mb-[12px]">I prioritised</p>
+                <div className="flex flex-wrap gap-[8px] mb-[16px]">
+                  {["Speed", "Learnability", "Scalability"].map((tag) => (
+                    <span key={tag} className="inline-flex rounded-full border border-black px-3 py-1 type-chip text-black bg-my-bg">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <p className="type-body-sm text-black/40 italic">This was not a visual decision — it was a product decision prioritising speed and learnability over novelty.</p>
+              </div>
+            </div>
+
           </section>
 
           {/* 03 — Core Challenge */}
           <section id="s-challenge" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
             <SectionLabel>03 — The Core Challenge</SectionLabel>
-            <SectionTitle>Multiple roles, conflicting goals</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-8">
-              Each role optimises for something different. Improving one often degrades another. Instead
-              of designing separate interfaces, the problem was reframed as:{" "}
-              <em className="font-inria-serif">how can one system support multiple truths simultaneously?</em>
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-black/20">
-              {roles.map((role) => (
-                <div
-                  key={role.name}
-                  className={`border-b border-r border-black/10 p-6 ${role.wide ? "md:col-span-2" : ""}`}
-                >
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45">{role.name}</p>
-                    <span className="font-futura-light text-[10px] uppercase tracking-[0.1em] border border-black/15 px-2 py-1 text-black/35 shrink-0">Goal: {role.goal}</span>
-                  </div>
-                  <p className="font-futura-light text-[13.5px] leading-relaxed text-black mb-4">{role.detail}</p>
-                  <span className="font-futura-light text-[10px] uppercase tracking-[0.1em] border border-black/20 px-3 py-1 text-black/45">{role.pill}</span>
+
+            {/* Framing — text col 1 | blank col 2 | body cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Multiple roles, conflicting goals</p>
+                <p className="type-body">Each role optimises for something different. Improving one often degrades another.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key mb-[16px]">
+                  The problem was reframed:{" "}
+                  <em className="font-inria-serif">how can one system support multiple truths simultaneously?</em>
+                </p>
+                <p className="type-body-sm text-black/40 italic">This was a system decision, not a UI optimisation.</p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Role cards — text col 1 | blank col 2 | cards cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">User roles</p>
+                <p className="type-body">Five distinct roles, each with a different mental model and success criteria.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  {roles.map((role) => (
+                    <div key={role.name} className="border-b border-black/10 last:border-b-0 p-[20px]">
+                      <div className="flex items-start justify-between gap-[12px] mb-[10px]">
+                        <p className="type-eyebrow">{role.name}</p>
+                        <span className="font-futura-light text-[10px] uppercase tracking-[0.1em] border border-black/15 px-2 py-1 text-black/35 shrink-0">Goal: {role.goal}</span>
+                      </div>
+                      <ul className="space-y-[4px] mb-[12px]">
+                        {role.points.map((pt) => (
+                          <li key={pt} className="flex items-start gap-[8px]">
+                            <span className="type-body-sm text-black/30 shrink-0">→</span>
+                            <p className="type-body-sm">{pt}</p>
+                          </li>
+                        ))}
+                      </ul>
+                      <span className="inline-flex rounded-full border border-black px-3 py-1 type-chip text-black bg-my-bg">{role.pill}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </section>
 
           {/* 04 — Key Design Decisions */}
           <section id="s-decisions" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
             <SectionLabel>04 — Key Design Decisions</SectionLabel>
-            <SectionTitle>Where the real decisions lived</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-8">
-              Multi-role systems aren't hard because they're large — they're hard because optimising for
-              one user often compromises another. These three decisions defined how the system held together.
-            </p>
-            <div className="space-y-6">
-              {decisions.map((d) => (
-                <div key={d.number} className="border border-black/20 p-6">
-                  <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 mb-2">Decision {d.number}</p>
-                  <h3 className="font-futura-medium text-[15px] mb-2 text-black">{d.title}</h3>
-                  <p className="font-futura-light text-[13px] uppercase tracking-[0.1em] text-black/45 mb-4 italic">{d.tension}</p>
-                  {d.explored && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {d.explored.map((opt) => (
-                        <span key={opt} className="font-futura-light text-[10px] uppercase tracking-[0.1em] border border-black/15 px-2 py-1 text-black/45">{opt}</span>
-                      ))}
-                    </div>
-                  )}
-                  <p className="font-futura-light text-[14px] leading-relaxed text-black mb-2">{d.body}</p>
-                  <DecisionBlock>{d.decision}</DecisionBlock>
+
+            {/* Intro — text col 1 | blank col 2 | body cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Where the real decisions lived</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key mb-[16px]">
+                  Multi-role systems are hard because optimising for one user often compromises another. These three decisions defined how the system held together.
+                </p>
+                <p className="type-body-sm text-black/40 italic">Each decision balanced user experience with operational constraints.</p>
+              </div>
+            </div>
+
+            {/* Decision cards — each as a 4-col grid module */}
+            {decisions.map((d, i) => (
+              <div key={d.number}>
+                <SubDivider />
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+                  <div>
+                    <p className="type-eyebrow mb-[10px]">Decision {d.number}</p>
+                    <p className="type-subhead mb-[8px]">{d.title}</p>
+                    {d.tension && (
+                      <p className="font-futura-light text-[12px] italic text-black/40 leading-relaxed">{d.tension}</p>
+                    )}
+                    {d.explored && (
+                      <div className="flex flex-wrap gap-[6px] mt-[12px]">
+                        {d.explored.map((opt) => (
+                          <span key={opt} className="font-futura-light text-[10px] uppercase tracking-[0.1em] border border-black/15 px-2 py-1 text-black/40">{opt}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="hidden md:block" />
+                  <div className="md:col-span-2 flex flex-col gap-[20px]">
+                    <p className="type-body">{d.body}</p>
+                    <DecisionBlock>{d.decision}</DecisionBlock>
+                    <ImagePlaceholder
+                      filename={`sf-decision-0${i + 1}.png`}
+                      caption={d.title}
+                    />
+                  </div>
                 </div>
-              ))}
+              </div>
+            ))}
+          </section>
+
+          {/* 04b — Design System */}
+          <section id="s-design-system" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
+            <SectionLabel>04b — Design System</SectionLabel>
+
+            {/* Intro — text col 1 | blank col 2 | body cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">A unified system across platforms</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key">
+                  To support a multi-role, multi-platform product, I established a unified design system
+                  across all interfaces.
+                </p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Design tokens — text col 1 | blank col 2 | content cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Design tokens</p>
+                <p className="type-body">A shared foundation of typography, colour, and spacing applied consistently across every product surface.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[20px]">
+                <ul className="space-y-[10px]">
+                  {["Typography scale", "Colour system", "Spacing and layout grid"].map((item) => (
+                    <li key={item} className="flex items-start gap-[12px]">
+                      <span className="w-[4px] h-[4px] rounded-full bg-black/25 mt-[8px] flex-shrink-0" />
+                      <p className="type-body">{item}</p>
+                    </li>
+                  ))}
+                </ul>
+                <ImagePlaceholder filename="sf-system-tokens.png" caption="Design tokens" />
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Reusable components — text col 1 | blank col 2 | content cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Reusable components</p>
+                <p className="type-body">Components shared across mobile and desktop, adapted per platform without diverging in logic.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[20px]">
+                <ImagePlaceholder filename="sf-system-components.png" caption="Component library" />
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Interaction patterns + outcome — text col 1 | blank col 2 | content cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Consistent interaction patterns</p>
+                <p className="type-body">Employee, manager, merchant, and rider interfaces share the same interaction logic, built on a single underlying system.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20 p-[20px]">
+                  <p className="type-eyebrow mb-[12px]">All products built on one system</p>
+                  <div className="flex flex-wrap gap-[8px]">
+                    {["Employee", "Manager", "Merchant", "Rider"].map((role) => (
+                      <span key={role} className="inline-flex rounded-full border border-black px-3 py-1 type-chip text-black bg-my-bg">{role}</span>
+                    ))}
+                  </div>
+                  <p className="type-body mt-[16px]">
+                    The design system was not a UI layer — it was the foundation for scaling the product across roles and platforms.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
           {/* 05 — Designing for Operations */}
           <section id="s-operations" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
             <SectionLabel>05 — Designing for Operations</SectionLabel>
-            <SectionTitle>Merchant experience — designing for reality</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-6">
-              Merchants operate in low-tech environments, high-pressure workflows, and with limited
-              staffing. We designed for reality, not ideal workflows.
-            </p>
-            <div className="border border-black/20 p-6 mb-8">
-              <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 mb-2">The constraint</p>
-              <h3 className="font-futura-medium text-[15px] mb-3 text-black">Street food prep is slow. Delivery timing is unforgiving.</h3>
-              <p className="font-futura-light text-[15px] leading-relaxed text-black">
-                Unlike restaurant kitchens, a street food stall has one or two people, limited equipment,
-                and no mise en place. On-demand ordering would require merchants to be ready to cook at
-                any moment — operationally impossible.
-              </p>
+
+            {/* Intro — text col 1 | blank col 2 | body cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Merchant experience</p>
+                <p className="type-body">Designing for reality, not ideal workflows.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key mb-[16px]">
+                  Merchants operate in low-tech environments and high-pressure workflows. I designed for reality, not ideal conditions.
+                </p>
+                <p className="type-body-sm text-black/40 italic">This balanced user experience with operational constraints.</p>
+              </div>
             </div>
 
-            <div className="mb-8">
-              <SectionLabel>The ordering window model</SectionLabel>
-              <p className="font-futura-light text-[14px] leading-relaxed text-black mb-10">
-                Instead of on-demand ordering, we introduced fixed time windows. This enabled batch
-                preparation, lower stress, and more reliable delivery — a service design decision, not a
-                UX decision.
-              </p>
-              {/* Desktop: horizontal timeline. Mobile: vertical list. */}
-              <div className="hidden md:block relative mt-4 mb-20">
-                <div className="relative h-[3px] bg-black/10">
+            <SubDivider />
+
+            {/* The constraint — text col 1 | blank col 2 | content cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">The constraint</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-subhead mb-[12px]">Street food prep is slow. Delivery timing is unforgiving.</p>
+                <p className="type-body-key">
+                  Unlike restaurant kitchens, a street food stall has one or two people, limited equipment,
+                  and no mise en place. On-demand ordering would require merchants to be ready to cook at
+                  any moment — operationally impossible.
+                </p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Ordering window — text col 1 | blank col 2 | timeline cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">The ordering window model</p>
+                <p className="type-body">
+                  Instead of on-demand ordering, I introduced fixed time windows. This enabled batch
+                  preparation, lower stress, and more reliable delivery — a service design decision, not a
+                  UX decision.
+                </p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                {/* Desktop: horizontal timeline */}
+                <div className="hidden md:block relative mt-4 mb-16">
+                  <div className="relative h-[3px] bg-black/10">
+                    {[
+                      { left: "0%",  width: "22%", opacity: "opacity-20" },
+                      { left: "22%", width: "20%", opacity: "opacity-80" },
+                      { left: "42%", width: "8%",  opacity: "opacity-10" },
+                      { left: "50%", width: "30%", opacity: "opacity-40" },
+                      { left: "80%", width: "20%", opacity: "opacity-10" },
+                    ].map((seg, i) => (
+                      <div key={i} className={`absolute top-0 h-full bg-black ${seg.opacity}`} style={{ left: seg.left, width: seg.width }} />
+                    ))}
+                    {[
+                      { left: "22%", label: "Order window opens", time: "11:00" },
+                      { left: "42%", label: "Window closes",      time: "11:30" },
+                      { left: "50%", label: "Rider dispatched",   time: "11:38" },
+                      { left: "80%", label: "Delivered",          time: "12:00" },
+                    ].map((dot) => (
+                      <div key={dot.left} className="absolute" style={{ left: dot.left, transform: "translateX(-50%)" }}>
+                        <div className="w-3 h-3 rounded-full bg-black border-2 border-my-bg -mt-[5px]" />
+                        <div className="absolute top-6 text-center" style={{ transform: "translateX(-50%)", whiteSpace: "nowrap" }}>
+                          <p className="type-eyebrow">{dot.label}</p>
+                          <p className="font-futura-medium text-[13px] text-black">{dot.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Mobile: vertical steps */}
+                <div className="md:hidden flex flex-col gap-0 border-l border-black/20 ml-2">
                   {[
-                    { left: "0%",  width: "22%", opacity: "opacity-20" },
-                    { left: "22%", width: "20%", opacity: "opacity-80" },
-                    { left: "42%", width: "8%",  opacity: "opacity-10" },
-                    { left: "50%", width: "30%", opacity: "opacity-40" },
-                    { left: "80%", width: "20%", opacity: "opacity-10" },
-                  ].map((seg, i) => (
-                    <div key={i} className={`absolute top-0 h-full bg-black ${seg.opacity}`} style={{ left: seg.left, width: seg.width }} />
-                  ))}
-                  {[
-                    { left: "22%", label: "Order window opens", time: "11:00" },
-                    { left: "42%", label: "Window closes",      time: "11:30" },
-                    { left: "50%", label: "Rider dispatched",   time: "11:38" },
-                    { left: "80%", label: "Delivered",          time: "12:00" },
+                    { label: "Order window opens", time: "11:00" },
+                    { label: "Window closes",      time: "11:30" },
+                    { label: "Rider dispatched",   time: "11:38" },
+                    { label: "Delivered",          time: "12:00" },
                   ].map((dot) => (
-                    <div key={dot.left} className="absolute" style={{ left: dot.left, transform: "translateX(-50%)" }}>
-                      <div className="w-3 h-3 rounded-full bg-black border-2 border-my-bg -mt-[5px]" />
-                      <div className="absolute top-6 text-center" style={{ transform: "translateX(-50%)", whiteSpace: "nowrap" }}>
-                        <p className="font-futura-light text-[10px] uppercase tracking-[0.1em] text-black/45">{dot.label}</p>
-                        <p className="font-futura-medium text-[13px] text-black">{dot.time}</p>
+                    <div key={dot.time} className="flex items-start gap-4 pl-5 py-3 relative">
+                      <div className="absolute left-[-5px] top-[18px] w-[9px] h-[9px] rounded-full bg-black border-2 border-my-bg" />
+                      <div>
+                        <p className="type-eyebrow">{dot.label}</p>
+                        <p className="font-futura-medium text-[14px] text-black">{dot.time}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              {/* Mobile: vertical steps */}
-              <div className="md:hidden flex flex-col gap-0 border-l border-black/20 ml-2 mb-8">
-                {[
-                  { label: "Order window opens", time: "11:00" },
-                  { label: "Window closes",      time: "11:30" },
-                  { label: "Rider dispatched",   time: "11:38" },
-                  { label: "Delivered",          time: "12:00" },
-                ].map((dot) => (
-                  <div key={dot.time} className="flex items-start gap-4 pl-5 py-3 relative">
-                    <div className="absolute left-[-5px] top-[18px] w-[9px] h-[9px] rounded-full bg-black border-2 border-my-bg" />
-                    <div>
-                      <p className="font-futura-light text-[10px] uppercase tracking-[0.1em] text-black/45">{dot.label}</p>
-                      <p className="font-futura-medium text-[14px] text-black">{dot.time}</p>
+            </div>
+
+            <SubDivider />
+
+            {/* Interaction principles — text col 1 | blank col 2 | cards cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Interaction principles</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  {merchantPrinciples.map((p) => (
+                    <div key={p.title} className="border-b border-black/10 last:border-b-0 p-[20px]">
+                      <p className="type-eyebrow mb-[8px]">Principle</p>
+                      <p className="type-subhead mb-[10px]">{p.title}</p>
+                      <p className="type-body">{p.body}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
-            <SectionLabel>Interaction principles</SectionLabel>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-black/20 mb-6">
-              {merchantPrinciples.map((p) => (
-                <div key={p.title} className="border-b border-r border-black/10 p-6">
-                  <p className="font-futura-light text-[11px] uppercase tracking-[0.18em] text-black/45 mb-2">Principle</p>
-                  <h3 className="font-futura-medium text-[15px] mb-3 text-black">{p.title}</h3>
-                  <p className="font-futura-light text-[13.5px] leading-relaxed text-black">{p.body}</p>
-                </div>
-              ))}
-            </div>
-            <img
-              src="/swiftfood.png"
-              alt="Merchant tablet UI"
-              className="w-full object-cover my-8"
-              style={{ aspectRatio: "16/9", objectPosition: "center 20%" }}
-            />
+            <SubDivider />
+
+            {/* Merchant UI image — full span */}
+            <ImagePlaceholder filename="sf-merchant-ui.png" caption="Merchant tablet UI" ratio="16/9" />
           </section>
 
           {/* 06 — Smart Access Control */}
           <section id="s-access" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
             <SectionLabel>06 — Smart Access Control</SectionLabel>
-            <SectionTitle>Solving hybrid work with clock-in integration</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-6">
-              London's hybrid work culture created a specific UX problem: companies pay for employee
-              lunches on days people are in the office. Managing this manually was an unsustainable
-              burden on managers.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border border-black/20 mb-6">
-              {[
-                { eyebrow: "Daily · Automatic", title: "Clock-in sync",    body: "Company's HR / attendance system syncs with the platform each morning." },
-                { eyebrow: "Result · In office",  title: "Access granted",  body: "In-office employees automatically unlock the ordering window. No manager action needed." },
-                { eyebrow: "Result · Remote",     title: "Access withheld", body: "Remote or absent employees see the app but cannot order. No manual intervention required." },
-              ].map((c) => (
-                <div key={c.title} className="border-b border-r border-black/10 p-6 text-center">
-                  <p className="font-futura-light text-[10px] uppercase tracking-[0.14em] text-black/45 mb-3">{c.eyebrow}</p>
-                  <h3 className="font-futura-medium text-[15px] mb-2 text-black">{c.title}</h3>
-                  <p className="font-futura-light text-[13px] leading-relaxed text-black">{c.body}</p>
-                </div>
-              ))}
+
+            {/* Intro — text col 1 | blank col 2 | body cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Clock-in integration</p>
+                <p className="type-body">Solving hybrid work automatically.</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key mb-[16px]">
+                  London's hybrid work model created a specific UX problem: companies pay for lunches only on office days. Managing this manually was unsustainable for managers.
+                </p>
+                <p className="type-body-sm text-black/40 italic">This was a system decision, not a UI optimisation.</p>
+              </div>
             </div>
-            <InsightBlock label="→ Edge case">
-              Employees who come into the office unexpectedly, or whose clock-in fails to sync, needed a
-              way out. The solution was a self-serve override — employees can manually mark themselves as
-              "in office today," which triggers a one-tap manager notification (not approval — just visibility).
-            </InsightBlock>
-            <DecisionBlock>
-              We made the override a notification, not an approval flow. Requiring manager sign-off
-              would shift the cognitive burden back to the manager — defeating the purpose of
-              automation. Trust is the default; the manager can audit after the fact if needed.
-            </DecisionBlock>
-            <img
-              src="/swiftfood.png"
-              alt="Employee app — locked state + override screen"
-              className="w-full object-cover my-8"
-              style={{ aspectRatio: "16/9", objectPosition: "center 60%" }}
-            />
+
+            <SubDivider />
+
+            {/* How it works — text col 1 | blank col 2 | cards cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">How it works</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  {[
+                    { eyebrow: "Daily · Automatic", title: "Clock-in sync",    body: "Company's HR / attendance system syncs with the platform each morning." },
+                    { eyebrow: "Result · In office",  title: "Access granted",  body: "In-office employees automatically unlock the ordering window. No manager action needed." },
+                    { eyebrow: "Result · Remote",     title: "Access withheld", body: "Remote or absent employees see the app but cannot order. No manual intervention required." },
+                  ].map((c) => (
+                    <div key={c.title} className="border-b border-black/10 last:border-b-0 p-[20px]">
+                      <p className="type-eyebrow mb-[8px]">{c.eyebrow}</p>
+                      <p className="type-subhead mb-[8px]">{c.title}</p>
+                      <p className="type-body-sm">{c.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Edge case + decision — text col 1 | blank col 2 | content cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Edge case</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2 flex flex-col gap-[20px]">
+                <InsightBlock label="→ Edge case">
+                  Employees who come into the office unexpectedly, or whose clock-in fails to sync, needed a
+                  way out. The solution was a self-serve override — employees can manually mark themselves as
+                  "in office today," which triggers a one-tap manager notification (not approval — just visibility).
+                </InsightBlock>
+                <DecisionBlock>
+                  The override was designed as a notification, not an approval flow. Requiring manager sign-off
+                  would shift the cognitive burden back to the manager — defeating the purpose of
+                  automation. Trust is the default; the manager can audit after the fact if needed.
+                </DecisionBlock>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Access control UI image */}
+            <ImagePlaceholder filename="sf-access-ui.png" caption="Employee app — locked state + override screen" ratio="16/9" />
           </section>
 
           {/* 07 — Outcomes */}
           <section id="s-outcomes" className="pt-[40px] md:pt-[56px] pb-[40px] md:pb-[56px] border-b border-black/15">
             <SectionLabel>07 — Outcomes</SectionLabel>
-            <SectionTitle>Results after launch</SectionTitle>
-            <p className="font-futura-light text-[15px] leading-relaxed text-black mb-8">
-              The platform launched in London. Key metrics from the first three months of operation.
-            </p>
-            <div className="grid grid-cols-2 gap-0 border border-black/20 mb-8">
-              {outcomes.map((o) => (
-                <div key={o.label} className="border-b border-r border-black/10 p-6 text-center">
-                  <p className="font-inria-serif text-[clamp(2rem,3.5vw,3rem)] leading-none tracking-tight text-black mb-2">{o.stat}</p>
-                  <p className="font-futura-light text-[11px] uppercase tracking-[0.12em] text-black/45">{o.label}</p>
+
+            {/* Intro — text col 1 | blank col 2 | body cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Results after launch</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <p className="type-body-key">The platform launched in London. Key metrics from the first three months of operation.</p>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Stats — text col 1 | blank col 2 | stats cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Key metrics</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="grid grid-cols-2 gap-0 border border-black/20">
+                  {outcomes.map((o) => (
+                    <div key={o.label} className="border-b border-r border-black/10 p-[20px] text-center">
+                      <p className="font-inria-serif text-[clamp(2rem,3.5vw,3rem)] leading-none tracking-tight text-black mb-[8px]">{o.stat}</p>
+                      <p className="type-eyebrow">{o.label}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-black/20 mb-6">
-              <div className="border-r border-black/10 p-6">
-                <p className="font-futura-light text-[11px] uppercase tracking-[0.16em] text-black/45 mb-3">What this demonstrates</p>
-                <ul className="space-y-2">
-                  {[
-                    "A single system can support multiple roles without fragmentation",
-                    "System-level decisions outperform UI optimisation",
-                    "Product evolution defines design complexity",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <span className="font-futura-light text-[11px] text-black/30 mt-[3px]">—</span>
-                      <p className="font-futura-light text-[13.5px] leading-relaxed text-black">{item}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="p-6">
-                <p className="font-futura-light text-[11px] uppercase tracking-[0.16em] text-black/45 mb-3">My contribution</p>
-                <ul className="space-y-2">
-                  {[
-                    "Defined multi-role system architecture",
-                    "Led product structuring from 0→1",
-                    "Translated business evolution into product logic",
-                    "Designed cross-role interaction systems",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <span className="font-futura-light text-[11px] text-black/30 mt-[3px]">—</span>
-                      <p className="font-futura-light text-[13.5px] leading-relaxed text-black">{item}</p>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
-            <InsightBlock label="→ Reflection">
-              Design was positioned as a product-defining function — not a delivery service for
-              pre-specified requirements. The most valuable decisions were structural ones made before
-              any interface was drawn.
-            </InsightBlock>
+
+            <SubDivider />
+
+            {/* Learnings — text col 1 | blank col 2 | two lists cols 3-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px] mb-[48px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Learnings</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <div className="border border-black/20">
+                  <div className="border-b border-black/10 p-[20px]">
+                    <p className="type-eyebrow mb-[12px]">What this demonstrates</p>
+                    <ul className="space-y-[8px]">
+                      {[
+                        "A single system can support multiple roles without fragmentation",
+                        "System-level decisions outperform UI optimisation",
+                        "Product evolution defines design complexity",
+                      ].map((item) => (
+                        <li key={item} className="flex items-start gap-[10px]">
+                          <span className="font-futura-light text-[11px] text-black/30 mt-[3px]">—</span>
+                          <p className="type-body">{item}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-[20px]">
+                    <p className="type-eyebrow mb-[12px]">My contribution</p>
+                    <ul className="space-y-[8px]">
+                      {[
+                        "Defined multi-role system architecture",
+                        "Led product structuring from 0→1",
+                        "Translated business evolution into product logic",
+                        "Designed cross-role interaction systems",
+                      ].map((item) => (
+                        <li key={item} className="flex items-start gap-[10px]">
+                          <span className="font-futura-light text-[11px] text-black/30 mt-[3px]">—</span>
+                          <p className="type-body">{item}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <SubDivider />
+
+            {/* Reflection */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-[32px] gap-y-[24px]">
+              <div>
+                <p className="type-eyebrow mb-[16px]">Reflection</p>
+              </div>
+              <div className="hidden md:block" />
+              <div className="md:col-span-2">
+                <InsightBlock label="→ Reflection">
+                  Design was a product-defining function — not a delivery service for pre-specified requirements. The most valuable decisions were structural, made before any interface was drawn.
+                </InsightBlock>
+              </div>
+            </div>
           </section>
 
           {/* Back link */}
           <div className="pt-[48px]">
             <Link
               to="/projects"
-              className="font-futura-light text-[12px] uppercase tracking-[0.18em] text-black/45 hover:text-black transition-colors inline-flex items-center gap-2"
+              className="font-futura-heavy text-[12px] opacity-30 hover:opacity-100 transition-opacity inline-flex items-center gap-2"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M19 12H5M5 12L12 19M5 12L12 5" />

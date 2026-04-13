@@ -1,25 +1,4 @@
 @font-face {
-  font-family: "Inria Serif";
-  src: url("./fonts/InriaSerif-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Inria Serif";
-  src: url("./fonts/InriaSerif-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Inria Serif";
-  src: url("./fonts/InriaSerif-Italic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-}
-
-@font-face {
   font-family: "Futura-Medium";
   src: url("./fonts/FuturaCyrillicMedium.ttf") format("truetype");
 }
@@ -39,17 +18,18 @@
 @theme {
   --color-my-bg: #F8F7F3;
   --color-brand: #63C2BD;
-  --color-black: #131313;
-  --color-grey-1: #595959;
-  --color-grey-2: #737373;
+  --color-black: #0D0D0D;
+  --color-grey-1: #3B3B3B;
+  --color-grey-2: #5C5C5C;
+  --color-grey-3: #B1B1B1;
 
-  --font-serif: "Inria Serif", serif;
+  --font-serif: "Libre Bodoni", serif;
   --font-sans: "Futura-Medium", sans-serif;
   --font-futura-medium: "Futura-Medium", sans-serif;
   --font-futura-heavy: "Futura-Heavy", sans-serif;
   --font-futura-light: "Futura-Light", sans-serif;
-  --font-inria-serif: "Inria Serif", serif;
-  --font-inria-serif-bold: "Inria Serif Bold", serif;
+  --font-inria-serif: "Libre Bodoni", serif;
+  --font-inria-serif-bold: "Libre Bodoni", serif;
 
   --text-h1: 96px;
   --text-h1--line-height: 1.2;
@@ -58,17 +38,114 @@
   --text-h3: 32px;
   --text-h3--line-height: 1.3;
   --text-body1: 18px;
-  --text-body1--line-height: 1.2;
-  --text-body2: 14px;
-  --text-body2--line-height: 1.2;
+  --text-body1--line-height: 1.6;
+  --text-body2: 15px;
+  --text-body2--line-height: 1.6;
   --text-caption: 12px;
-  --text-caption--line-height: 1.2;
+  --text-caption--line-height: 1.4;
+
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --space-5: 64px;
 }
 
 @layer base {
   html {
-    font-family: "Inria Serif", serif;
+    font-family: "Libre Bodoni", serif;
     background-color: var(--color-my-bg);
     color: #1A1A1A;
+  }
+}
+
+@layer components {
+  /* ── Typography scale ─────────────────────────────────────────────────────
+     Usage: add the class name, then override spacing/margin with Tailwind
+  ──────────────────────────────────────────────────────────────────────── */
+
+  /* Eyebrow / meta label — futura-medium, small, muted */
+  .type-eyebrow {
+    font-family: var(--font-futura-medium);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-grey-3);
+  }
+
+  /* Section nav label — "01 — Context" style, inria-serif, responsive clamp */
+  .type-section-nav {
+    font-family: var(--font-inria-serif);
+    font-size: clamp(1.4rem, 2.8vw, 2.5rem);
+    line-height: 1;
+    color: var(--color-black);
+  }
+
+  /* Section title — inria-serif, large, tight tracking */
+  .type-section-title {
+    font-family: var(--font-inria-serif);
+    font-size: clamp(2.2rem, 3.5vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--color-grey-1);
+  }
+
+  /* Hero / display title — inria-serif, extra large */
+  .type-display {
+    font-family: var(--font-inria-serif);
+    font-size: clamp(1.5rem, 3.8vw, 4.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--color-black);
+  }
+
+  /* Key body paragraph — futura-medium, 17px, full black */
+  .type-body-key {
+    font-family: var(--font-futura-medium);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--color-black);
+  }
+
+  /* Standard body — futura-medium, 15px, muted */
+  .type-body {
+    font-family: var(--font-futura-medium);
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-grey-2);
+  }
+
+  /* Small body — futura-medium, 13px */
+  .type-body-sm {
+    font-family: var(--font-futura-medium);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-black);
+  }
+
+  /* Sub-heading inside cards/blocks — futura-medium, 15px */
+  .type-subhead {
+    font-family: var(--font-futura-medium);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--color-black);
+  }
+
+  /* Chip / tag label — futura-medium, 10px, uppercase */
+  .type-chip {
+    font-family: var(--font-futura-medium);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* Decision / shift statement — brand accent left border */
+  .type-decision {
+    font-family: var(--font-futura-medium);
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--color-black);
+    padding-left: 12px;
+    border-left: 2px solid var(--color-brand);
   }
 }
