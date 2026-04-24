@@ -1,12 +1,9 @@
-import { StrictMode } from "react";
+import { StrictMode, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { usePageView } from "./usePageView";
-
-function PageViewTracker() {
-  usePageView();
-  return null;
-}
+import { AuthProvider, useAuth } from "./AuthContext";
+import PasswordGate from "./PasswordGate";
 
 import App from "./App";
 import ProjectsPage from "./ProjectsPage";
@@ -20,21 +17,36 @@ import GenerativeImagePage from "./generative-image";
 
 import "./index.css";
 
+function PageViewTracker() {
+  usePageView();
+  return null;
+}
+
+function Protected({ children }: { children: ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <PasswordGate />;
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HashRouter>
-      <PageViewTracker />
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/about" element={<AboutMe />} />
-        <Route path="/projects/volunteer" element={<VrVolunteerSystem />} />
-        <Route path="/projects/swiftfood" element={<SwiftfoodPage />} />
-        <Route path="/projects/healthtech" element={<HealthtechPage />} />
-        <Route path="/projects/smarthome" element={<SmarthomePage />} />
-        <Route path="/projects/other-4" element={<Other4Page />} />
-        <Route path="/projects/creative-2" element={<GenerativeImagePage />} />
-      </Routes>
+      <AuthProvider>
+        <PageViewTracker />
+        <Routes>
+          {/* 公开页面 */}
+          <Route path="/" element={<App />} />
+          <Route path="/about" element={<AboutMe />} />
+
+          {/* 需要密码的页面 */}
+          <Route path="/projects" element={<Protected><ProjectsPage /></Protected>} />
+          <Route path="/projects/volunteer" element={<Protected><VrVolunteerSystem /></Protected>} />
+          <Route path="/projects/swiftfood" element={<Protected><SwiftfoodPage /></Protected>} />
+          <Route path="/projects/healthtech" element={<Protected><HealthtechPage /></Protected>} />
+          <Route path="/projects/smarthome" element={<Protected><SmarthomePage /></Protected>} />
+          <Route path="/projects/other-4" element={<Protected><Other4Page /></Protected>} />
+          <Route path="/projects/creative-2" element={<Protected><GenerativeImagePage /></Protected>} />
+        </Routes>
+      </AuthProvider>
     </HashRouter>
   </StrictMode>
 );
