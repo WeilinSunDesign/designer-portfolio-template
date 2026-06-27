@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { about, personal } from "./portfolio.config";
 
+const cvPath = `/${personal.cvFile}`;
+
 export default function AboutMe() {
   const navigate = useNavigate();
 
@@ -61,13 +63,13 @@ export default function AboutMe() {
         <h3 className="font-sans text-sm tracking-widest uppercase opacity-40 mb-[40px]">CV</h3>
         <div className="w-full border border-black mb-[32px] overflow-hidden">
           <iframe
-            src="/Weilin_Sun_Product_Designer.pdf"
+            src={cvPath}
             className="w-full h-[60vh] md:h-[80vh]"
             title={`${personal.name} CV`}
           />
         </div>
         <a
-          href="./Weilin_Sun_Product_Designer.pdf"
+          href={cvPath}
           download
           className="inline-flex items-center gap-3 border border-black px-6 py-4 font-sans text-sm tracking-widest uppercase hover:bg-black hover:text-white transition-colors w-fit"
         >

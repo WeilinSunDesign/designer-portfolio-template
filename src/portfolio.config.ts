@@ -6,7 +6,7 @@
 // Design, layout and component code are untouched — only this file changes.
 //
 // pageType:
-//   "custom"  — has a hand-crafted .tsx case study (see src/swiftfood.tsx etc.)
+//   "custom"  — has a hand-crafted .tsx case study (see CLAUDE.md for guide)
 //   "generic" — uses CaseStudyPage.tsx + a content file in src/case-studies/
 //   null      — no detail page yet (shows a WIP toast on click)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -14,32 +14,35 @@
 // ── Personal info ─────────────────────────────────────────────────────────────
 
 export const personal = {
-  name: "Weilin Sun",
-  title: "Product Designer",       // first pill badge
-  location: "London/ Remote",      // second pill badge
-  yearStart: 2021,
-  yearEnd: 2026,
+  name: "Your Name",
+  title: "Your Role",               // first pill badge (e.g. "Product Designer")
+  location: "Your City / Remote",   // second pill badge
+  yearStart: 2020,
+  yearEnd: 2025,
   bio: [
-    "A product designer with a background in Material Science and Engineering. Specialised in bridging the gap between emerging tech and human-centric experiences.",
-    "Experienced in AI-assisted product design workflows, with a proven track record of translating speculative research into tangible prototypes and products.",
+    "A short sentence about your background and what makes you distinct as a designer.",
+    "A second sentence about your focus area, approach, or the kind of work you love.",
   ],
   links: [
-    { label: "Linkedin", href: "https://www.linkedin.com/in/weilin-sun-429701291/" },
-    { label: "Email",    href: "mailto:sunweilin3399@gmail.com" },
-    { label: "Resume",   href: "https://weilin-uu.github.io/weilinportfolio.github.io/Weilin_Sun_Product_Designer.pdf" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/your-profile/" },
+    { label: "Email",    href: "mailto:you@example.com" },
+    { label: "Resume",   href: "/your-cv.pdf" },
   ],
+  // Filename of your CV in /public — referenced by the About page
+  cvFile: "your-cv.pdf",
 };
 
 // ── About page ────────────────────────────────────────────────────────────────
 
 export const about = {
-  photo: "/me.webp",
-  bio: "Hi, I am Weilin, a designer with a background in Material Science and Engineering. I design futures that are grounded in reality, approaching problems through both speculative thinking and real-world constraints. I care deeply about the intersection of technology, people, and systems.",
+  // Drop your photo in /public and reference it here
+  photo: "/your-photo.webp",
+  bio: "Hi, I am [Your Name]. Write a few sentences about who you are, your background, and what drives your design practice. Keep it personal and authentic.",
   skills: [
     { category: "Design",      items: ["UX Research", "Wireframing", "Prototyping", "User Testing", "Information Architecture"] },
-    { category: "Tools",       items: ["Figma", "Adobe XD", "Illustrator", "Photoshop", "Miro"] },
-    { category: "Development", items: ["HTML", "CSS", "React", "TypeScript"] },
-    { category: "Methods",     items: ["Design Thinking", "Agile", "Speculative Design", "Systems Thinking"] },
+    { category: "Tools",       items: ["Figma", "Adobe XD", "Illustrator", "Miro"] },
+    { category: "Development", items: ["HTML", "CSS", "React"] },
+    { category: "Methods",     items: ["Design Thinking", "Agile", "Systems Thinking"] },
   ],
 };
 
@@ -76,95 +79,66 @@ export interface Project {
 
 export const projects: Project[] = [
   // ── UX / UI ──────────────────────────────────────────────────────────────
+  //
+  // Example with a generic content page (uses src/case-studies/my-project.ts):
+  //
+  // {
+  //   slug: "my-project",
+  //   title: "Your Project Title",
+  //   coverImage: "/my-project-cover.webp",
+  //   year: "2024",
+  //   chips: ["UX Design", "Mobile", "Shipped"],
+  //   section: "ux-ui-projects",
+  //   pageType: "generic",   // → reads from src/case-studies/registry.ts
+  // },
+  //
+  // Example placeholder (no page yet — shows a "check back soon" toast):
+  //
+  // {
+  //   slug: "wip-project",
+  //   title: "Work In Progress Project",
+  //   coverImage: "/wip-cover.webp",
+  //   year: "2025",
+  //   chips: ["Service Design", "Research"],
+  //   section: "ux-ui-projects",
+  //   pageType: null,
+  // },
+
   {
-    slug: "swiftfood",
-    title: "Multi-sided Marketplace Platform for Food Delivery",
-    coverImage: "/swiftfood.webp",
-    year: "2025",
-    chips: ["Marketplace UX", "B2C/B2B", "Multi-sided Platform"],
-    section: "ux-ui-projects",
-    pageType: "custom",
-  },
-  {
-    slug: "healthtech",
-    title: "Building an AI-driven nutrition platform for gestational diabetes management",
-    coverImage: "/healthtech.webp",
+    slug: "custom-example",
+    title: "Custom Case Study Template (click to preview)",
+    coverImage: "/project-one-cover.webp",
     year: "2024",
-    chips: ["HealthTech", "AI Product", "Startup Concept"],
+    chips: ["Template", "Custom Layout"],
     section: "ux-ui-projects",
     pageType: "custom",
   },
   {
-    slug: "volunteer",
-    title: "AR Future Volunteer System Design",
-    coverImage: "/volunteer.webp",
-    year: "2024",
-    chips: ["AR", "Service Design", "Future Scenario"],
-    section: "ux-ui-projects",
-    pageType: "custom",
-  },
-  {
-    slug: "smarthome",
-    title: "Smart Home System Based on Affective Computing",
-    coverImage: "/logo.webp",
-    year: "2021",
-    chips: ["Smart Home", "AI", "Affective Computing"],
-    section: "ux-ui-projects",
-    pageType: "custom",
-  },
-  {
-    slug: "vrlibrary",
-    title: "Future VR Library of Language Preservation",
-    coverImage: "/vrlibrary.webp",
-    year: "2024",
-    chips: ["VR", "Cultural Preservation", "Speculative Design"],
-    section: "ux-ui-projects",
-    pageType: "custom",
-  },
-  {
-    slug: "cardgame",
-    title: "Gamified System for Cross-Cultural Communication",
-    coverImage: "/cardgame.webp",
+    slug: "project-two",
+    title: "Your Second Project Title",
+    coverImage: "/project-two-cover.webp",
     year: "2023",
-    chips: ["Game Design", "Education", "Cross-cultural"],
+    chips: ["Service Design", "Research"],
     section: "ux-ui-projects",
     pageType: null,
   },
   // ── Creative Coding ───────────────────────────────────────────────────────
   {
-    slug: "creative-2",
-    title: "Generative Image Study",
-    coverImage: "/gis-cover.webp",
-    year: "2026",
-    chips: ["Generative", "Visual System", "Experiment"],
-    section: "creative-coding",
-    pageType: "custom",
-  },
-  {
-    slug: "vibe-coding-portfolio",
-    title: "Building This Portfolio: A Design-First Vibe Coding Workflow",
-    coverImage: "/portfolio-build.webp",
-    year: "2026",
-    chips: ["Vibe Coding", "AI-Assisted Dev", "React", "Claude Code"],
-    section: "creative-coding",
-    pageType: "custom",
-  },
-  {
-    slug: "foldable-robot",
-    title: "Foldable Robot",
-    coverImage: "/foldablerobot.webp",
+    slug: "creative-one",
+    title: "Your Creative / Coding Project",
+    coverImage: "/creative-one-cover.webp",
     year: "2024",
-    chips: ["Physical Computing", "Robotics", "Prototype"],
+    chips: ["Generative", "Experiment"],
     section: "creative-coding",
     pageType: null,
   },
   // ── Other ─────────────────────────────────────────────────────────────────
   {
-    slug: "other-2",
-    title: "Mortise and tenon structure parent-child furniture",
-    coverImage: "/logo.webp",
-    year: "2021",
-    chips: ["Furniture design", "Critical thinking", "Carpentry"],
+    slug: "other-one",
+    title: "Any Other Project",
+    coverImage: "/other-one-cover.webp",
+    year: "2023",
+    chips: ["Physical", "Prototype"],
     section: "other-projects",
     pageType: null,
   },
@@ -172,12 +146,11 @@ export const projects: Project[] = [
 
 // ── Homepage carousel ─────────────────────────────────────────────────────────
 // Subset of project images shown in the homepage slideshow.
+// Add one entry per image you want to feature.
 
 export const carouselImages = [
-  { img: "./swiftfood.webp",     title: "Multi-Sided B2B2C Catering Platform",              slug: "swiftfood"     },
-  { img: "./healthtech.webp",    title: "AI Nutrition for GDM Care",                        slug: "healthtech"    },
-  { img: "./volunteer.webp",     title: "AR Future Volunteer System",                       slug: "volunteer"     },
-  { img: "./vrlibrary.webp",     title: "VR Library of Language Preservation",              slug: "vrlibrary"     },
-  { img: "./cardgame.webp",      title: "Gamified System for Cross-Cultural Communication", slug: "cardgame"      },
-  { img: "./foldablerobot.webp", title: "Foldable Robot",                                   slug: "foldablerobot" },
+  { img: "./project-one-cover.webp",   title: "Your First Project Title",          slug: "project-one"   },
+  { img: "./project-two-cover.webp",   title: "Your Second Project Title",         slug: "project-two"   },
+  { img: "./creative-one-cover.webp",  title: "Your Creative / Coding Project",    slug: "creative-one"  },
+  { img: "./other-one-cover.webp",     title: "Any Other Project",                 slug: "other-one"     },
 ];

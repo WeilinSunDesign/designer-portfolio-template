@@ -6,14 +6,8 @@ import { usePageView } from "./usePageView";
 import App from "./App";
 import ProjectsPage from "./ProjectsPage";
 import AboutMe from "./AboutMe.tsx";
-import VrVolunteerSystem from "./VrVolunteerSystem";
-import SwiftfoodPage from "./swiftfood";
-import HealthtechPage from "./healthtech";
-import SmarthomePage from "./Smarthome";
-import Other4Page from "./other-4";
-import GenerativeImagePage from "./generative-image";
-import VibeCodingPortfolio from "./vibe-coding-portfolio";
 import CaseStudyPage from "./CaseStudyPage";
+import CustomCaseStudyTemplate from "./custom-case-study-template";
 
 import "./index.css";
 
@@ -31,14 +25,14 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/about" element={<AboutMe />} />
         <Route path="/projects" element={<ProjectsPage />} />
 
-        {/* ── Custom hand-crafted case study pages ── */}
-        <Route path="/projects/volunteer"             element={<VrVolunteerSystem />} />
-        <Route path="/projects/swiftfood"             element={<SwiftfoodPage />} />
-        <Route path="/projects/healthtech"            element={<HealthtechPage />} />
-        <Route path="/projects/smarthome"             element={<SmarthomePage />} />
-        <Route path="/projects/other-4"               element={<Other4Page />} />
-        <Route path="/projects/creative-2"            element={<GenerativeImagePage />} />
-        <Route path="/projects/vibe-coding-portfolio" element={<VibeCodingPortfolio />} />
+        {/* ── Custom hand-crafted case study pages ─────────────────────────────
+            To add your own custom .tsx case study:
+            1. Copy src/custom-case-study-template.tsx → src/your-project.tsx
+            2. Fill in your content (replace all YOUR_XXX placeholders)
+            3. Import it here and add a Route below
+            4. Set pageType: "custom" for your project in portfolio.config.ts
+        ── */}
+        <Route path="/projects/custom-example" element={<CustomCaseStudyTemplate />} />
 
         {/* ── Generic template pages (reads from src/case-studies/registry.ts) ── */}
         <Route path="/projects/:slug" element={<CaseStudyPage />} />

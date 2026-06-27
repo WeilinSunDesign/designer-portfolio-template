@@ -10,10 +10,16 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { CaseStudyContent } from "./types";
+import exampleContent from "./example";
 
 // ── Add your imports here ────────────────────────────────────────────────────
 // import myProject from "./my-project";
 
 export const registry: Record<string, CaseStudyContent> = {
+  // "project-one" is wired to the example template so you can preview the
+  // case study layout out of the box. Replace with your own content file
+  // and slug when you're ready.
+  "project-one": exampleContent,
+
   // "my-project": myProject,
 };
