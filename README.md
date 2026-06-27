@@ -2,7 +2,7 @@
 
 A minimal, opinionated portfolio template for designers. Built with React + Vite + Tailwind CSS v4. Fixed design system — you only edit content.
 
-**[Live demo →](https://weilindesign.github.io/designer-portfolio-template/)**
+**[Live demo →](https://weilinsundesign.github.io/designer-portfolio-template/)**
 
 ---
 
